@@ -11,3 +11,15 @@ SELECT did, dname
         FROM works
         WHERE works.pct_time > 99);
  --b.
+ 
+ SELECT ename, age FROM emp where emp.eid IN (SELECT eid FROM
+(SELECT eid 
+  FROM works as w
+  WHERE w.did = (SELECT did FROM dept AS d WHERE dname = 'Software')) AS es
+  WHERE eid IN (SELECT eid
+  FROM works as w
+  WHERE w.did = (SELECT did FROM dept AS d WHERE dname = 'Hardware')));
+ 
+    
+  
+ 
