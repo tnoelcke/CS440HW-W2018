@@ -1,0 +1,41 @@
+Hint: For question 1, your queries should return these outputs on the sample database:
+
+1.a
+
+3	Human Resources
+8	Research
+9	Customer Service
+
+------------------------------------------
+1.b
+
+Krassimir Wegerle	60
+------------------------------------------
+1.c
+
+Magy Stamatiou
+Alejandro McAlpine
+Shir McClurg
+Alex Dalas
+Sergio Ravarez
+Antonio Lavante
+Tonny Conner
+Gladys Cooper
+Rodney Ferreri
+Shirish Ossenbruggen
+DeForest Hagimont
+Arie Staelin
+Tonny Butterworth
+Shigehito Kropatsch
+Shaz Bierbaum
+Weidon Gente
+Patricia Breuge
+------------------------------------------
+1.d
+
+111692
+------------------------------------------
+1.e
+
+did		count
+8		7
