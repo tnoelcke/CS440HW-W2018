@@ -32,11 +32,16 @@ SELECT did, dname
   
  
 --Question C
+SELECT emp.ename 
+  FROM emp
+  WHERE emp.eid NOT IN
+  (SELECT es.eid 
+    FROM (SELECT emp.eid, emp.salary, works.did
+    FROM emp, works
+    WHERE emp.eid = works.eid) AS es
+    WHERE es.salary > (SELECT budget from dept WHERE dept.did = es.did));
+  
 
-SELECT es.ename FROM (SELECT emp.ename, emp.salary, works.did
-  FROM emp, works
-  WHERE emp.eid = works.eid) AS es
-  WHERE es.salary < (SELECT budget from dept WHERE dept.did = es.did);
 
   
  -- Question D
@@ -46,6 +51,10 @@ SELECT managerid FROM dept
 
 	
 -- Question E
-
+SELECT did, COUNT(eid)
+  FROM WORKS
+  GROUP BY did
+  HAVING SUM(pct_time) > 400;
+  
 
 
