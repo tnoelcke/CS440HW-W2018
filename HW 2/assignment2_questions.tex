@@ -65,11 +65,10 @@ Trees can be drawn on paper and scanned.
 \item Consider a file with a large number of \textit{Transaction(id, customerID, productID, amount)} records, which keeps track of the purchases made by a customer on various products. Assume that users frequently insert new records into this file. Users also query this file to compute the total amount of money each customer has spent on her purchases, similar to a SQL query with {\it Group By customerID}. Which file structure, heap versus sorted, provides the fastest total running time for users' queries over this file?  Explain your answer (0.5 point).
 \end{enumerate}
 
-
 \question{2}{B+ Tree Indexing (2 points)}
 Consider the B+ tree index shown in Figure~\ref{figure:q2}. 
 Each intermediate node can hold up to five pointers and four key values. Each leaf can hold up to four pointers to data, and leaf nodes are doubly linked as usual, although these links are not shown in the figure.
-Answer the following questions.
+Answer the following questions.\\
 
 \begin{figure}[h]
 	\centering
@@ -86,15 +85,21 @@ Answer the following questions.
 
 \begin{enumerate}
 	\item Show the B+ tree that would result from inserting a record with search key 95 into the tree.
-	
+	\paragraph{solution:} \hfill \break
+	Add Graphic Here.
 
 	\item Use the result/solution tree from (1) and Show the B+ tree that would result from deleting the record with search key 60.
-	
+		\paragraph{solution:} \hfill \break
+		Add graphic Here.
 
 	\item Name a search key value such that inserting it into the result/solution tree from (1) would cause an increase in the height of the tree.
-	
+	\paragraph{solution:} \hfill \break
+	If you insert a value into either the left most or second to left most node (Between 5 and 30) would cuase hight to be added to the tree.\\
 
 	\item What can you infer about the contents and the shape of A, B and C subtrees?
+	\paragraph{solution}: \hfill \break
+	We know that the A will contain values less than 10. We also know that b will contain key values between 10 and 19 and C will contain values between 20 and 29. We can also say that A, B and C must be leaf's because the tree must be balanced. Finally, we can say that each node must have between 2 and 4 keys and can at most have 5 pointers.\\
+	
 	
 	\begin{figure}[h]
 	\centering
