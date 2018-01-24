@@ -43,8 +43,8 @@
 \rhead{CS 440, Winter 2018}
 \begin{document}\raggedright
 %Section A==============Change the values below to match your information==================
-\newcommand\NAME{Oregon State University}  % your name
-\newcommand\ANDREWID{}     % your andrew id
+\newcommand\NAME{Thomas Noelcke}  % your name
+\newcommand\ANDREWID{noelcket}     % your andrew id
 \newcommand\HWNUM{2}              % the homework number
 %Section B==============Put your answers to the questions below here=======================
 
@@ -62,7 +62,12 @@ Trees can be drawn on paper and scanned.
 \begin{enumerate}
 \item Consider a file with a large number of \textit{Customer(id, name, birth-date)} records. Assume that users frequently search this file based on a the field \textit{id} to find the values of \textit{name} or \textit{birth-date} for customers whose information is stored in the file. Moreover, assume that users rarely update current records or insert new records to the file. Which file structure, heap versus sorted, provides the fastest total running time for users' queries over this file? Explain your answer (0.5 point).\\
 
+For this example the best file structure would be a sorted file structure sorted based on the ID of the Customer record. I would choose this file structure because a sorted file structure offers better run time efficiency for search type operations. This file structure does have some disadvantages when it comes to writing to the file structure however as indicated in the question we don't expect this operation to happen often.\\
+
 \item Consider a file with a large number of \textit{Transaction(id, customerID, productID, amount)} records, which keeps track of the purchases made by a customer on various products. Assume that users frequently insert new records into this file. Users also query this file to compute the total amount of money each customer has spent on her purchases, similar to a SQL query with {\it Group By customerID}. Which file structure, heap versus sorted, provides the fastest total running time for users' queries over this file?  Explain your answer (0.5 point).
+
+In this instance I would probably use a heap type files structure. As indicated by the question there will be a large number of records added to this file. A heap type file structure will offer the best performance when it comes to writing to the file. However, this file structure will be slower at querying using a group by statement as mentioned in the question prompt. However, if you are using a group by statement you are probably reading a decent amount of the records in the file any ways and likely wont suffer enough to justify giving up the write performance of a heap file structure.\\
+
 \end{enumerate}
 
 \question{2}{B+ Tree Indexing (2 points)}
