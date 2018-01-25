@@ -141,6 +141,18 @@ Consider the instance of the Students relation shown in Figure~\ref{figure:q4}.
 	\item To reduce the number of I/O access in index search, each B+ tree node should fit in a block. Let {\it sid} be an integer requiring 16 bits. Let a pointer require 32 bits.
 	If the block size is 28 bytes (consisting of 8 bits), what is the maximum degree of the B+ tree index on {\it sid} so each B+ tree node fit in a block?
 	
+	\paragraph{Solution:} \hfill \break
+	Shown below is an equation for the block size given the Key size and the Record pointer size. We will use this to solve this problem.\\
+	
+\begin{equation}
+	k_v = Key Value size
+	r_p = Record pointer size
+	b_s = block size
+	d = degree
+	2*d k_v 
+\end{equation} 
+	
+	
 
 	\item Show a B+ tree index on {\it sid} of degree calculated in part 1 for all records in Figure~\ref{figure:q4}.
 	
