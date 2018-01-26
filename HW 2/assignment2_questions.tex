@@ -27,6 +27,10 @@
 \usetikzlibrary{arrows}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{lscape}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage{float}
 
 
 \setlength{\parindent}{0pt}
@@ -75,12 +79,6 @@ Consider the B+ tree index shown in Figure~\ref{figure:q2}.
 Each intermediate node can hold up to five pointers and four key values. Each leaf can hold up to four pointers to data, and leaf nodes are doubly linked as usual, although these links are not shown in the figure.
 Answer the following questions.\\
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.9\columnwidth]{figure_q2.png}
-	\caption{Tree for question 2.}
-	\label{figure:q2}
-\end{figure}
 
 \begin{comment}
 {"keys": [25,55,75],
@@ -91,29 +89,26 @@ Answer the following questions.\\
 \begin{enumerate}
 	\item Show the B+ tree that would result from inserting a record with search key 95 into the tree.
 	\paragraph{solution:} \hfill \break
-	Add Graphic Here.
-
+	See the graphic below for the solution to this problem.\\
+	\begin{sidewaysfigure}[H]
+		\includegraphics[width=\textwidth]{twoPointOne.png}
+  \end{sidewaysfigure}
 	\item Use the result/solution tree from (1) and Show the B+ tree that would result from deleting the record with search key 60.
 		\paragraph{solution:} \hfill \break
-		Add graphic Here.
+		See graphic below for solution.\\
+		\begin{sidewaysfigure}[H]
+			\includegraphics[width=\textwidth]{twoPointTwo.jpeg}
+		\end{sidewaysfigure}
+		
 
 	\item Name a search key value such that inserting it into the result/solution tree from (1) would cause an increase in the height of the tree.
 	\paragraph{solution:} \hfill \break
-	If you insert a value into either the left most or second to left most node (Between 5 and 30) would cuase hight to be added to the tree.\\
+	If you insert a value into either the left most or second to left most node (Between 5 and 30) would cause height to be added to the tree.\\
 
 	\item What can you infer about the contents and the shape of A, B and C subtrees?
 	\paragraph{solution}: \hfill \break
 	We know that the A will contain values less than 10. We also know that b will contain key values between 10 and 19 and C will contain values between 20 and 29. We can also say that A, B and C must be leaf's because the tree must be balanced. Finally, we can say that each node must have between 2 and 4 keys and can at most have 5 pointers.\\
 	
-	
-	\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.7\columnwidth]{figure_q2-1.png}
-	\caption{Tree for question 2.4.}
-	\label{figure:q2}
-    \end{figure}
-
-
 \end{enumerate}
 
 
@@ -124,9 +119,17 @@ Suppose that a block can contain at most four data values and that all data valu
 \begin{enumerate}
 	\item A B+ tree whose height changes from 2 to 3 when the value 60 is inserted. Show your structure before and after the insertion.
 	
-
+	solution is shown below in graphic.\\
+	\begin{sidewaysfigure}[H]
+		\includegraphics[width=\textwidth]{threePointOne.jpeg}
+	\end{sidewaysfigure}
+	
 	
 	\item A B+ tree in which the deletion of the value 60 leads to a redistribution. Show your structure before and after the deletion.
+		\begin{sidewaysfigure}[H]	
+			\includegraphics[width=\textwidth]{threePointTwo.jpeg}
+		\end{sidewaysfigure}
+	
 	
 
 %	\item A B+ tree in which the deletion of the value 25 causes a merge of two nodes but without altering the height of the tree.
@@ -141,16 +144,35 @@ Consider the instance of the Students relation shown in Figure~\ref{figure:q4}.
 	\item To reduce the number of I/O access in index search, each B+ tree node should fit in a block. Let {\it sid} be an integer requiring 16 bits. Let a pointer require 32 bits.
 	If the block size is 28 bytes (consisting of 8 bits), what is the maximum degree of the B+ tree index on {\it sid} so each B+ tree node fit in a block?
 	
+	\paragraph{Solution:} \hfill \break
+	Shown below is an equation for the block size given the Key size and the Record pointer size. We will use this to solve this problem.\\
+	
+\begin{multline}
+	k_v = Key Value size \\
+	r_p = Record pointer size \\
+	b_s = block size \\
+	d = degree\\
+	2d k_v + (2d + 1) r_p <= b_s 
+\end{multline}
+	Given this equation and the values given in the question prompt we can say the follow:\\
+	
+	\begin{multline}
+		2d * 16 + (2d + 1) * 32 <= 28 * 8\\
+		32d + 32*(2d + 1) <= 224\\
+		d + (2d + 1) <= 7\\
+		3d <= 6\\
+		d <= 6
+	\end{multline}
+	As shown by the equation above the degree of this tree can be no larger than 2.\\
+	
 
 	\item Show a B+ tree index on {\it sid} of degree calculated in part 1 for all records in Figure~\ref{figure:q4}.
 	
-	\begin{figure}[h]
+	solution shown below in figure.\\
+	\begin{sidewaysfigure}[H]
 		\centering
-		\includegraphics[width=0.7\columnwidth]{figure_q4-2.png}
-		\caption{An Instance of the Students Relation.}
-		\label{figure:q4}
-	\end{figure}
-	
+		\includegraphics{fourPointTwo.jpeg}
+	\end{sidewaysfigure}
 
 	
 	
