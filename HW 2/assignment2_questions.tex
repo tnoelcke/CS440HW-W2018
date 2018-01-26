@@ -27,6 +27,10 @@
 \usetikzlibrary{arrows}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{lscape}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage{float}
 
 
 \setlength{\parindent}{0pt}
@@ -86,18 +90,20 @@ Answer the following questions.\\
 	\item Show the B+ tree that would result from inserting a record with search key 95 into the tree.
 	\paragraph{solution:} \hfill \break
 	See the graphic below for the solution to this problem.\\
-	
-	\includegraphics{twoPointOne.png}
-
+	\begin{sidewaysfigure}[H]
+		\includegraphics[width=\textwidth]{twoPointOne.png}
+  \end{sidewaysfigure}
 	\item Use the result/solution tree from (1) and Show the B+ tree that would result from deleting the record with search key 60.
 		\paragraph{solution:} \hfill \break
 		See graphic below for solution.\\
+		\begin{sidewaysfigure}[H]
+			\includegraphics[width=\textwidth]{twoPointTwo.jpeg}
+		\end{sidewaysfigure}
 		
-		\includegraphics{twoPointTwo.jpeg}
 
 	\item Name a search key value such that inserting it into the result/solution tree from (1) would cause an increase in the height of the tree.
 	\paragraph{solution:} \hfill \break
-	If you insert a value into either the left most or second to left most node (Between 5 and 30) would cuase hight to be added to the tree.\\
+	If you insert a value into either the left most or second to left most node (Between 5 and 30) would cause height to be added to the tree.\\
 
 	\item What can you infer about the contents and the shape of A, B and C subtrees?
 	\paragraph{solution}: \hfill \break
@@ -114,12 +120,16 @@ Suppose that a block can contain at most four data values and that all data valu
 	\item A B+ tree whose height changes from 2 to 3 when the value 60 is inserted. Show your structure before and after the insertion.
 	
 	solution is shown below in graphic.\\
+	\begin{sidewaysfigure}[H]
+		\includegraphics[width=\textwidth]{threePointOne.jpeg}
+	\end{sidewaysfigure}
 	
-	\includegraphics{threePointOne.jpeg}
 	
 	\item A B+ tree in which the deletion of the value 60 leads to a redistribution. Show your structure before and after the deletion.
+		\begin{sidewaysfigure}[H]	
+			\includegraphics[width=\textwidth]{threePointTwo.jpeg}
+		\end{sidewaysfigure}
 	
-	\includegraphics{threePointTwo.jpeg}
 	
 
 %	\item A B+ tree in which the deletion of the value 25 causes a merge of two nodes but without altering the height of the tree.
@@ -159,9 +169,10 @@ Consider the instance of the Students relation shown in Figure~\ref{figure:q4}.
 	\item Show a B+ tree index on {\it sid} of degree calculated in part 1 for all records in Figure~\ref{figure:q4}.
 	
 	solution shown below in figure.\\
-	
-	\includegraphics{fourPointTwo.jpeg}
-
+	\begin{sidewaysfigure}[H]
+		\centering
+		\includegraphics{fourPointTwo.jpeg}
+	\end{sidewaysfigure}
 
 	
 	
