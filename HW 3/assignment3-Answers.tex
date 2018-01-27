@@ -71,28 +71,29 @@ What is the fastest join algorithm for computing the join of R and S? What is th
 For this problem I would use an optimized muti-pass sort merge. I would use this algorithm because it is fairly quick but also because the out put would be in sorted order. Hash merge would actually compute the join more quickly but after we computed the result we would have to sort the results and this would be expensive.\\
 
 To compute the cost of this algorithm we must first compute the number of passes is going to take to compute the result. Once we know how many passes the algorithm takes we can compute the cost. the equation is shown below.\\
-we can say that it is going to take two passes to compute the merge because we can at most process m^2 - 1 records at a time and we have 100,000 records. So we would divide up the merge into into two 50,000 record blocks. However be fore we preform the merge we must first sort the individual records. This will cost 2(b(S) + b(R). We must then preform the merge. This will cost 2(b(S) + b(R)) for the first merge (cost of read + the cost of intermediate write) and will cost b(S) + b(R) for the final merge. So the total cost would be 5 b(S) + 5 b(R).\\
+we can say that it is going to take two passes to compute the merge because we can at most process \[m^2 - 1\] records at a time and we have 100,000 records. So we would divide up the merge into into two 50,000 record blocks. However be fore we preform the merge we must first sort the individual records. This will cost \[2(b(S) + b(R)\]. We must then preform the merge. This will cost \[2(b(S) + b(R))\] for the first merge (cost of read + the cost of intermediate write) and will cost \[b(S) + b(R)\] for the final merge. So the total cost would be \[5 b(S) + 5 b(R)\].\\
 
 
 \item Assume that there are 40 buffer blocks available in the main memory. 
 What is the fastest join algorithm to compute the join of R and S? What is the cost of this algorithm? \\
 
-\paragarph{Soution:} \hfill \break
-Again we would hope to use Hash merge but given that we only have 40 memory blocks it is not possible to use hash merge. This is because with hash merge you can only have memory squared number of records in one of your relations and 40^2 < 20,000. So for this solution I would again opt to use optimized sort merge.\\
+\paragraph{Soution:} \hfill \break
+Again we would hope to use Hash merge but given that we only have 40 memory blocks it is not possible to use hash merge. This is because with hash merge you can only have memory squared number of records in one of your relations and \[40^2 < 20,000\]. So for this solution I would again opt to use optimized sort merge.\\
 
 We can Calculate the number of passes and the total cost using the equation shown in the graphic below.\\
 
-use graphic here for the equation.
 
-Using the equation to compute the number of runs we find that it will take 4 passes to complete the merge sort. This means that the merge costs 5(B(S) + B(R)). However we are not given sorted files so we will need to sort each relation before preforming the merge. This will cos 2(B(S) + B(R)). This means that the total cost of the algorithm is 7(B(S) + B(R)).\\
 
+Using the equation to compute the number of runs we find that it will take 4 passes to complete the merge sort. This means that the merge costs \[5(B(S) + B(R))\]. However we are not given sorted files so we will need to sort each relation before preforming the merge. This will cos \[2(B(S) + B(R))\]. This means that the total cost of the algorithm is \[7(B(S) + B(R))\].\\
+
+\includegraphics{Formula.PNG}
 
 \item Assume that there are 200 buffer blocks available in the main memory. What is the fastest join 
 algorithm to compute the join of R and S? What is the cost of this algorithm? 
 
 \paragraph{Solution:} \hfill \break
 
-In this case we have enough memory to use hash merge. We can do this because 200^2 is less than 20000. The cost of this algorithm will be 3 B(R) + 3 B(S).\\
+In this case we have enough memory to use hash merge. We can do this because \[200^2 > 20000\]. The cost of this algorithm will be \[3 B(R) + 3 B(S)\].\\
 
 \end{enumerate}
 
