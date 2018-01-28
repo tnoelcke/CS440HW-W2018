@@ -85,14 +85,8 @@ const char DEPT_FNAME[] = "department.csv";
 
 
 int main(){
-	FILE* fp;
-	fp = fopen(EMP_FNAME, "r");
-	if(!fp){
-		perror("Error opening file");
-		exit(2);
-	}
-	employee* emp = NULL;
-	emp = getEmpTouple(fp);
+	FILE* efp = openFile(EMP_FNAME, "r");
+	FILE* dfp = openFile(DEPT_FNAME, "r");
 	
 }
 
