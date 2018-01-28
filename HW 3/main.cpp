@@ -23,7 +23,7 @@
 //
 //
 //Assumptions:
-//We only have 22 blocks availible to merge the CSV files
+//We only have 22 blocks available to merge the CSV files
 //Each block fits at most one tuple.
 //
 //
@@ -43,9 +43,9 @@ const int STRING_LEN = 40;
 //this struct represents an employee in our employee relation.
 typedef struct employee
 {
-    int eid;
+    long int eid;
     char ename[STRING_LEN];
-    int age;
+    long int age;
     double salary;
     
 } employee;
@@ -53,29 +53,33 @@ typedef struct employee
 //this struct represents a department in our department relation.
 typedef struct department 
 {
-    int did;
+    long int did;
     char dname[STRING_LEN];
     double budget;
-    int managerId;
+    long int managerId;
 } department;
 
 typedef struct empDepartment 
 {
-    int did;
-    int eid;
+    long int did;
+    long int eid;
     char dname[STRING_LEN];
     char ename[STRING_LEN];
     double budget;
     double salary;
-    int managerId;
+	long int age;
+    long int managerId;
     
 } empDepartment;
 
 //Function Headers
 employee* getEmpTouple(FILE* file);
-department* getDeptTouple(ofstream file);
-empDepartment* copy(department * dep, employee* emp);
-FILE* openFile(char* fname, char* args);
+department* getDeptTouple(FILE* file);
+empDepartment* copy(department* dep, employee* emp);
+FILE* openFile(const char* fname,const char* args);
+void displayEmp(employee* emp);
+void displayDep(department* dep);
+void displayDepEmp(empDepartment* ed);
 
 //Constants
 const int NUM_BLOCKS = 22;
@@ -83,15 +87,22 @@ const char EMP_FNAME[] = "employee.csv";
 const char DEPT_FNAME[] = "department.csv";
 
 
-
+// Main function
 int main(){
 	FILE* efp = openFile(EMP_FNAME, "r");
 	FILE* dfp = openFile(DEPT_FNAME, "r");
+	employee* emp = getEmpTouple(efp);
+	displayEmp(emp);
+	department* dep = getDeptTouple(dfp);
+	displayDep(dep);
+	empDepartment* join = copy(dep, emp);
+	displayDepEmp(join);
+	
 	
 }
 
 
-FILE* openFile(char* fname, char* args){
+FILE* openFile(const char* fname,const char* args){
 	FILE* fp = fopen(fname, args);
 	if(!fp){
 		perror("Error opening file");
@@ -102,15 +113,24 @@ FILE* openFile(char* fname, char* args){
 //this function takes a file pointer and retunrs a pointer to an employee object.
 employee* getEmpTouple(FILE* file)
 {
-	
-    return NULL;
+	employee* emp = NULL;
+	if(!feof(file)){
+		emp = new employee;
+		fscanf(file, "\"%ld\",\"%[^\"]\",\"%ld\",\"%la\"\n", &emp->eid, emp->ename, &emp->age, &emp->salary);
+	} 
+	return emp;
 }
 
 
 //this function takes a file point and returns a pointer to a department object.
-department* getDeptTouple(FILE* fp)
-{
-    return NULL;
+department* getDeptTouple(FILE* file)
+{	
+	department* dep = NULL;
+	if(!feof(file)){
+		dep = new department;
+		fscanf(file, "\"%ld\",\"%[^\"]\",\"%la\",\"%ld\"\n", &dep->did, dep->dname, &dep->budget, &dep->managerId);
+	}
+    return dep;
 }
 
 
@@ -122,7 +142,7 @@ empDepartment* copy(department* dep, employee* emp)
     if(!dep || !emp){
         return NULL;
     }
-    //copy the data over to the new scrut.
+    //copy the data over to the new struct.
     empDepartment* copy = new empDepartment;
     copy->did = dep->did;
     copy->eid = emp->eid;
@@ -131,9 +151,42 @@ empDepartment* copy(department* dep, employee* emp)
     copy->budget = dep->budget;
     copy->salary = emp->salary;
     copy->managerId = dep->managerId;
+	copy->age = emp-> age;
 
     return copy;
 }
+
+//Takes a department pointer and displays that department to standard out.
+void displayDep(department* dep){
+	if(dep){
+		cout<<"did: "<<dep->did<<" name: " << dep->dname << " budget: " << dep->budget << " Managerid: " << dep->managerId << "\n";
+	} else {
+		cout << "No Department to display\n";
+	}
+}
+
+//Takes an employee pointer and displays the employee to stdout.
+void displayEmp(employee* emp){
+	if(emp){
+		cout<<"eid: "<< emp->eid <<" name: " << emp->ename << " age: " << emp->age << " salary: " << emp->salary << "\n";
+	} else{
+		cout << "No Employee to display\n";
+	}
+}
+
+void displayDepEmp(empDepartment* ed){
+	if(ed){
+		cout<<"eid: "<< ed->eid <<" name: " << ed->ename << " age: " << ed->age << " salary: " << ed->salary << "\n";
+		cout<<"did: "<<ed->did<<" name: " << ed->dname << " budget: " << ed->budget << " Managerid: " << ed->managerId << "\n";
+	} else {
+		cout << "Nothing to display\n";
+	}
+}
+
+
+
+
+
 
 
 
