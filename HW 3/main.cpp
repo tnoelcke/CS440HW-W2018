@@ -80,12 +80,16 @@ FILE* openFile(const char* fname,const char* args);
 void displayEmp(employee* emp);
 void displayDep(department* dep);
 void displayDepEmp(empDepartment* ed);
+void writeEmployee(FILE* file, employee* emp);
+void writeDepartment(FILE* file, department* dep);
+void writeEmpDepartment(FILE* file, empDepartment* join);
+
 
 //Constants
 const int NUM_BLOCKS = 22;
 const char EMP_FNAME[] = "employee.csv";
 const char DEPT_FNAME[] = "department.csv";
-
+const char OUTPUT_FNAME[] = "join.cs";
 
 // Main function
 int main(){
@@ -121,6 +125,24 @@ employee* getEmpTouple(FILE* file)
 	return emp;
 }
 
+//This function takes a file pointer and an emloyee pointer and writes that employee out to a file
+void writeEmployee(FILE* file, employee* emp)
+{
+	fprintf(file, "\"%ld\",\"%s\",\"%li\",\"%la\"\n", emp->eid, emp->ename, emp->age, emp->salary); 
+}
+
+//this function takes a file pointer and a department pointer and writes that department out to the file.
+void writeDepartment(FILE* file, department* dep)
+{
+	fprintf(file, "\"%ld\",\"%s\",\"%la\",\"%li\"\n", dep->did, dep->dname, dep->budget, dep->managerId); 
+}
+
+//this function takes a file pointer and an merged empDepartment pointer
+//and writes this out to the file.
+void writeEmpDepartment(FILE* file, empDepartment* join)
+{
+	fprintf(file,"\"%ld\",\"%ld\",\"%s\",\"%s\",\"%la\",\"%la\",\%li\",\"%li\"\n", join->did, join->eid, join->dname, join->ename, join->budget, join->salary, join->managerId, join->age);	
+}
 
 //this function takes a file point and returns a pointer to a department object.
 department* getDeptTouple(FILE* file)
