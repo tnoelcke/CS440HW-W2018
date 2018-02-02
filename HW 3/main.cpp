@@ -35,12 +35,14 @@
 #include<string.h>
 #include<fstream>
 #include<stdlib.h>
+#include<algorithm>
 using namespace std;
 
 //struct definitions
 //sruct constant that will store the length of a character.
 const int STRING_LEN = 40;
 //this struct represents an employee in our employee relation.
+
 typedef struct employee
 {
     long int eid;
@@ -83,13 +85,21 @@ void displayDepEmp(empDepartment* ed);
 void writeEmployee(FILE* file, employee* emp);
 void writeDepartment(FILE* file, department* dep);
 void writeEmpDepartment(FILE* file, empDepartment* join);
+FILE ** sortRuns(FILE* empFile, FILE* depFile);
+void sortDep(department** departments);
+void sortEmp(employee** employees);
+bool readEmployees(FILE* fname, employee** dest);
+void writeEmployees(FILE* fname, employee** dest);
+bool readDepartments(FILE* fname, department** dest);
+void writeDepartments(FILE* fname, department** dest);
+
 
 
 //Constants
 const int NUM_BLOCKS = 22;
 const char EMP_FNAME[] = "employee.csv";
 const char DEPT_FNAME[] = "department.csv";
-const char OUTPUT_FNAME[] = "join.cs";
+const char OUTPUT_FNAME[] = "join.csv";
 
 // Main function
 int main(){
@@ -101,8 +111,8 @@ int main(){
 	displayDep(dep);
 	empDepartment* join = copy(dep, emp);
 	displayDepEmp(join);
-	
-	
+	FILE* jfp = openFile(OUTPUT_FNAME, "w");
+	writeEmpDepartment(jfp, join);
 }
 
 
@@ -114,21 +124,117 @@ FILE* openFile(const char* fname,const char* args){
 	}
 }
 
-//this function takes a file pointer and retunrs a pointer to an employee object.
-employee* getEmpTouple(FILE* file)
-{
-	employee* emp = NULL;
-	if(!feof(file)){
-		emp = new employee;
-		fscanf(file, "\"%ld\",\"%[^\"]\",\"%ld\",\"%la\"\n", &emp->eid, emp->ename, &emp->age, &emp->salary);
-	} 
-	return emp;
+//opens the files for the employee and department relations. Then takes those files and uses them to read in
+//blocks of size m - 1, sorts them on the join attribute and writes them to disk. This function will also calculate
+//how many files will be need to give each run its own file.
+FILE** sortRuns(){
+	//ToDo: calculate the number of files I will need.
+	
+	//reads in 21 employee's at a time and sorts them outputting them to their own file.
+	employee** temp = new employee*[NUM_BLOCKS - 1];
+	int i = 0;
+	do{
+		//TODO Read in an employee.
+		i++;
+		//TODO write employees to file.
+		if(i == NUM_BLOCKS - 1){
+			i = 0;
+		}
+	} while(temp);
+	
+	return NULL;
 }
 
-//This function takes a file pointer and an emloyee pointer and writes that employee out to a file
+
+//reads in a list of employees just the right size to fit into the input buffer size - 1
+//so we have room to sort the data with a temp slot. Will store the result in dest.
+//returns true if there are still more employees to read in returns false if we hit EOF.
+bool readEmployees(FILE* fname, employee** dest){
+	if(!fname){
+		return false;
+	}
+	if(!dest){
+		dest = new employee* [NUM_BLOCKS];
+	}
+	bool toReturn = true;
+	if(!fname){
+		return false;
+	}
+	for(int i = 0; i < NUM_BLOCKS - 1; ++i){
+		dest[i] = getEmpTouple(fname);
+		//tells the calling client we have reached EOF
+		if(!dest[i]){
+			toReturn = false;
+		}
+	}
+	return toReturn;
+}
+
+
+//does the same thing as readEmployees except for departments.
+bool readDepartments(FILE* fname, department** dest){
+	bool toReturn = true;
+	if(!fname){
+		return false;
+	}
+	if(!dest){
+		dest = new department* [NUM_BLOCKS];
+	}
+	if(!fname){
+		return false;
+	}
+	for(int i = 0; i < NUM_BLOCKS - 1; ++i){
+		dest[i] = getDeptTouple(fname);
+		//tells the calling client that we have reached eof.
+		if(!dest[i]){
+			toReturn = false;
+		}
+	}
+	return toReturn;
+}
+
+//writes a run of employees out to the disk.
+void writeEmployees(FILE* fname, employee** toDisk){
+	//don't do any thing if the we don't have a file or any data to output.
+	if(!fname || !toDisk){
+		return;
+	}
+	for(int i = 0; i < NUM_BLOCKS - 1; ++i){
+		writeEmployee(fname, toDisk[i]);
+	}
+}
+
+//writes a run of departments to disk
+void writeDepartments(FILE* fname, department** toDisk){
+		//don't do any thing if the we don't have a file or any data to output.
+	if(!fname || !toDisk){
+		return;
+	}
+	for(int i = 0; i < NUM_BLOCKS - 1; ++i){
+		writeDepartment(fname, toDisk[i]);
+	}
+}
+
+// takes a list of departments and returns a list of departments sorted on
+// mangerId.
+//TODO: Implement quick sort. :(
+void sortDep(department** departments, int index){
+
+	
+}
+
+
+//takes a list of employees and returns a list of employees sorted on eid.
+//TODO: Implement quick sort. :(  
+void sortEmp(employee** employee){
+	
+}
+
+
+//This function takes a file pointer and an employee pointer and writes that employee out to a file
 void writeEmployee(FILE* file, employee* emp)
 {
-	fprintf(file, "\"%ld\",\"%s\",\"%li\",\"%la\"\n", emp->eid, emp->ename, emp->age, emp->salary); 
+	fprintf(file, "\"%ld\",\"%s\",\"%li\",\"%.2la\"\n", emp->eid, emp->ename, emp->age, emp->salary); 
 }
 
 //this function takes a file pointer and a department pointer and writes that department out to the file.
@@ -141,7 +247,20 @@ void writeDepartment(FILE* file, department* dep)
 //and writes this out to the file.
 void writeEmpDepartment(FILE* file, empDepartment* join)
 {
-	fprintf(file,"\"%ld\",\"%ld\",\"%s\",\"%s\",\"%la\",\"%la\",\%li\",\"%li\"\n", join->did, join->eid, join->dname, join->ename, join->budget, join->salary, join->managerId, join->age);	
+	fprintf(file,"\"%ld\",\"%ld\",\"%s\",\"%s\",\"%.2lf\",\"%.2lf\",\%li\",\"%li\"\n", join->did, join->eid, join->dname, join->ename, join->budget, join->salary, join->managerId, join->age);	
+}
+
+//this function takes a file pointer and returns a pointer to an employee object.
+employee* getEmpTouple(FILE* file)
+{
+	employee* emp = NULL;
+	if(!feof(file)){
+		emp = new employee;
+		fscanf(file, "\"%ld\",\"%[^\"]\",\"%ld\",\"%la\"\n", &emp->eid, emp->ename, &emp->age, &emp->salary);
+	} else {
+		emp = NULL;
+	}
+	return emp;
 }
 
 //this function takes a file point and returns a pointer to a department object.
@@ -204,11 +323,4 @@ void displayDepEmp(empDepartment* ed){
 		cout << "Nothing to display\n";
 	}
 }
-
-
-
-
-
-
-
 
