@@ -68,10 +68,9 @@ We would like to have the output of join sorted according to attribute A.
 What is the fastest join algorithm for computing the join of R and S? What is the cost of this algorithm? 
 
 \paragraph{solution:} \hfill \break
-For this problem I would use an optimized muti-pass sort merge. I would use this algorithm because it is fairly quick but also because the out put would be in sorted order. Hash merge would actually compute the join more quickly but after we computed the result we would have to sort the results and this would be expensive.\\
+For this problem I would use standard sort merge Join. I would use this algorithm because it is fairly quick but also because the out put would be in sorted order. Hash merge would actually compute the join more quickly but after we computed the result we would have to sort the results and this would be expensive. Additionally, We can't use the optimized sort merge algorithm because \[ m^2 > B(R) + B(S)\] which in this case is 100,000 which is greater than 90,000.\\
 
-To compute the cost of this algorithm we must first compute the number of passes is going to take to compute the result. Once we know how many passes the algorithm takes we can compute the cost. the equation is shown below.\\
-we can say that it is going to take two passes to compute the merge because we can at most process \[m^2 - 1\] records at a time and we have 100,000 records. So we would divide up the merge into into two 50,000 record blocks. However be fore we preform the merge we must first sort the individual records. This will cost \[2(b(S) + b(R)\]. We must then preform the merge. This will cost \[2(b(S) + b(R))\] for the first merge (cost of read + the cost of intermediate write) and will cost \[b(S) + b(R)\] for the final merge. So the total cost would be \[5 b(S) + 5 b(R)\].\\
+To compute the cost we must first consider the algorithm. The will cost \[ 2 B(R) + 2 B(S)\] in the first pass of the sort. The second pass of the sort similarly will cost \[2 B(R) + 2 B(S) \]. The second pass is also a read and write because we are not just sorting the data. This make writing the data out to the disk after the sort is preformed an intermediate step so we must consider the cost. Finally we must read the data back into the memory to calculate the join. So we can say that the total cost is \[ 5 B(R) + 5 B(s)\]. Given this the cost of this algorithm in this case is \[ 5* (80000 + 20000) \] or 500000 IO operations.\\ 
 
 
 \item Assume that there are 40 buffer blocks available in the main memory. 
@@ -84,7 +83,7 @@ We can Calculate the number of passes and the total cost using the equation show
 
 
 
-Using the equation to compute the number of runs we find that it will take 4 passes to complete the merge sort. This means that the merge costs \[5(B(S) + B(R))\]. However we are not given sorted files so we will need to sort each relation before preforming the merge. This will cos \[2(B(S) + B(R))\]. This means that the total cost of the algorithm is \[7(B(S) + B(R))\].\\
+Using the equation to compute the number of runs we find that it will take 4 passes to complete the merge sort. This means that the merge costs \[5(B(S) + B(R))\]. However we are not given sorted files so we will need to sort each relation before preforming the merge. This will cos \[2(B(S) + B(R))\]. This means that the total cost of the algorithm is \[7(B(S) + B(R))\]. Given this formula we can say that this will cost \[7 * (80000 + 20000)\] or 700,000 IO operations.\\
 
 \includegraphics{Formula.PNG}
 
@@ -93,7 +92,7 @@ algorithm to compute the join of R and S? What is the cost of this algorithm?
 
 \paragraph{Solution:} \hfill \break
 
-In this case we have enough memory to use hash merge. We can do this because \[200^2 > 20000\]. The cost of this algorithm will be \[3 B(R) + 3 B(S)\].\\
+In this case we have enough memory to use hash merge. We can do this because \[200^2 > 20000\]. The cost of this algorithm will be \[3 B(R) + 3 B(S)\]. Given this formula we can say that this will cost \[3 * (80000 + 20000)\] or 300000 IO operations.\\
 
 \end{enumerate}
 
