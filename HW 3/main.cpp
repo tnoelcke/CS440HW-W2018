@@ -50,26 +50,17 @@ typedef struct employee
     char ename[STRING_LEN];
     long int age;
     double salary;
-
-    bool operator<(const employee& rhs) const
-    {
-        return (eid < rhs.eid);
-    }
     
 } employee;
 
 //this struct represents a department in our department relation.
 typedef struct department 
 {
+	long int managerId;
     long int did;
     char dname[STRING_LEN];
     double budget;
-    long int managerId;
-    
-    bool operator<(const department& rhs) const
-    {
-        return (managerId < rhs.managerId);
-    }
+   
 } department;
 
 typedef struct empDepartment 
@@ -84,6 +75,9 @@ typedef struct empDepartment
     long int managerId;    
 } empDepartment;
 
+bool compareEmp(employee* lhs, employee* rhs){ return lhs->eid < rhs->eid; }
+bool compareDep(department* lhs, department* rhs) {return lhs->managerId < rhs->managerId;}
+
 //Function Headers
 employee* getEmpTouple(FILE* file);
 department* getDeptTouple(FILE* file);
@@ -96,8 +90,8 @@ void writeEmployee(FILE* file, employee* emp);
 void writeDepartment(FILE* file, department* dep);
 void writeEmpDepartment(FILE* file, empDepartment* join);
 void sortRuns(FILE** empFiles, FILE** depFiles);
-void sortDep(department** departments);
-void sortEmp(employee** employees);
+void sortDep(department** departments, int endIndex);
+void sortEmp(employee** employees, int endIndex);
 int readEmployees(FILE* fname, employee** dest);
 void writeEmployees(FILE* fname, employee** dest);
 int readDepartments(FILE* fname, department** dest);
@@ -134,7 +128,6 @@ FILE* openFile(const char* fname,const char* args){
 //blocks of size m - 1, sorts them on the join attribute and writes them to disk. This function will also calculate
 //how many files will be need to give each run its own file.
 void sortRuns(FILE** empFiles, FILE** depFiles){
-	//ToDo: calculate the number of files I will need.
 	FILE* efp = openFile(EMP_FNAME, "r");
     FILE* dfp = openFile(DEPT_FNAME, "r");
     empFiles = new FILE*[NUM_BLOCKS - 2];
@@ -156,8 +149,6 @@ void sortRuns(FILE** empFiles, FILE** depFiles){
             exit(0);
         }
 		num = readEmployees(efp, tempEmp);
-        sortEmp(tempEmp);
-
         if(num > 0){
             strcpy(fname, ESORT_NAME);
             sprintf(fname,"%s%i", fname, i);
@@ -165,26 +156,26 @@ void sortRuns(FILE** empFiles, FILE** depFiles){
             writeEmployees(empFiles[i], tempEmp);
         }
         i++;
-	} while(num >= 0);
+	} while(num > 0);
 	int numEmp = i;
     i = 0;
     num = 0;
     department** tempDep = new department*[NUM_BLOCKS - 1];
     do{
-        if(i + numEmp == NUM_BLOCKS - 1){
-            perror("Relation to large for this algorithm. Not enough memeory\n");
+        if((i + numEmp) == (NUM_BLOCKS - 1)){
+            perror("Relation to large for this algorithm. Not enough memory\n");
             exit(0);
         }
         num = readDepartments(dfp, tempDep);
-        sortDep(tempDep);
         if(num > 0){
+			sortDep(tempDep, num + 1);
             strcpy(fname, DSORT_NAME);
             sprintf(fname, "%s%i", fname, i);
             depFiles[i] = fopen(fname, "w+");
             writeDepartments(depFiles[i], tempDep);
         }
-        
-    } while(num >= 0);
+        i++;
+    } while(num > 0);
 }
 
 
@@ -258,27 +249,27 @@ void writeDepartments(FILE* fname, department** toDisk){
 
 // takes a list of departments and returns a list of departments sorted on
 // mangerId.
-void sortDep(department** departments){
-    std::sort(departments, departments + (NUM_BLOCKS - 1));
+void sortDep(department** departments, int endIndex){
+    std::sort(departments, (departments + endIndex), compareDep);
 }
 
 
 //takes a list of employees and returns a list of employees sorted on eid. 
-void sortEmp(employee** employees){
-    std::sort(employees, employees + (NUM_BLOCKS - 1));
+void sortEmp(employee** employees, int endIndex){
+    std::sort(employees, (employees + endIndex), compareEmp);
 }
 
 
 //This function takes a file pointer and an employee pointer and writes that employee out to a file
 void writeEmployee(FILE* file, employee* emp)
 {
-	fprintf(file, "\"%ld\",\"%s\",\"%li\",\"%.2la\"\n", emp->eid, emp->ename, emp->age, emp->salary); 
+	fprintf(file, "\"%ld\",\"%s\",\"%li\",\"%.2lf\"\n", emp->eid, emp->ename, emp->age, emp->salary); 
 }
 
 //this function takes a file pointer and a department pointer and writes that department out to the file.
 void writeDepartment(FILE* file, department* dep)
 {
-	fprintf(file, "\"%ld\",\"%s\",\"%la\",\"%li\"\n", dep->did, dep->dname, dep->budget, dep->managerId); 
+	fprintf(file, "\"%ld\",\"%s\",\"%.2lf\",\"%li\"\n", dep->did, dep->dname, dep->budget, dep->managerId); 
 }
 
 //this function takes a file pointer and an merged empDepartment pointer
