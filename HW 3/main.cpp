@@ -135,12 +135,11 @@ void setUpFiles(FILE** toSetUp, const char* preFname){
     strcpy(pname, preFname);
     char fname[21];
 	for(int i = 0; i < 10; ++i){
-		cout << i << "\n";
-		if(toSetUp[i]){
-            sprintf(fname, "%s%i", pname, i);
-            toSetUp[i] = fopen(fname, "r");
-		} else {
-			return;
+		 sprintf(fname, "%s%i", pname, i);
+         toSetUp[i] = fopen(fname, "r");
+		if(!toSetUp[i]){
+            cout << i << "\n";
+            return;
 		}
 	}
 }
@@ -178,12 +177,12 @@ void join(){
 void fillMemory(FILE** empFiles, FILE** depFiles, employee** employees, department** departments){
 		bool empStop = false;
         bool depStop = false;
-        bool stop = false;
+        bool stop = true;
 		int empFileIndex = 0;
 		int depFileIndex = 0;
 		int eIndex = 0;
 		int dIndex = 0;
-		while(!stop){
+		while(stop){
 		if(empFiles[empFileIndex] != NULL && !empStop){
 			employees[eIndex] = getEmpTouple(empFiles[empFileIndex]);
 			empFileIndex++;
@@ -199,10 +198,11 @@ void fillMemory(FILE** empFiles, FILE** depFiles, employee** employees, departme
 		} else {
 			depStop = true;
 		}
-		if(eIndex + dIndex > NUM_BLOCKS - 2){
-			stop = true;
-		}
         stop = !(empStop && depStop);
+		if(eIndex + dIndex > NUM_BLOCKS - 2){
+			stop = false;
+		}
+        
 	}
 }
 
