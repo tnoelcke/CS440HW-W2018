@@ -182,11 +182,15 @@ void join(){
                  if(departments[i]->managerId < departments[depLow]->managerId){
                     depLow = i;
                 }
-            }  
+            }  else{
+                depLow++;
+            }
             if(employees[i]){
                 if(employees[i]->eid < employees[empLow]->eid){
                  empLow = i;
                 }
+            } else {
+                empLow++;
             }
          }
          
@@ -212,6 +216,20 @@ void join(){
              delete departments[depLow];
              departments[depLow] = getDeptTouple(depFiles[depLow]);
          }
+         bool empDone = true;
+         bool depDone = true;
+        for(int i = 0; i < 10; i++){
+            if(employees[i]){
+                empDone =false;
+            }
+            
+            if(departments[i]){
+                depDone = false;
+            }
+         }
+         done = empDone || depDone;
+         empLow = 0;
+         depLow = 0;
     }
     //clean up. close and delete our files free up memory.
     
