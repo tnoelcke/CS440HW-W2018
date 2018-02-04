@@ -33,6 +33,7 @@
 #include<iostream>
 #include<stdio.h>
 #include<string.h>
+#include<string>
 #include<fstream>
 #include<stdlib.h>
 #include<algorithm>
@@ -94,12 +95,12 @@ void displayDepEmp(empDepartment* ed);
 void writeEmployee(FILE* file, employee* emp);
 void writeDepartment(FILE* file, department* dep);
 void writeEmpDepartment(FILE* file, empDepartment* join);
-FILE ** sortRuns(FILE* empFile, FILE* depFile);
+void sortRuns(FILE** empFiles, FILE** depFiles);
 void sortDep(department** departments);
 void sortEmp(employee** employees);
-bool readEmployees(FILE* fname, employee** dest);
+int readEmployees(FILE* fname, employee** dest);
 void writeEmployees(FILE* fname, employee** dest);
-bool readDepartments(FILE* fname, department** dest);
+int readDepartments(FILE* fname, department** dest);
 void writeDepartments(FILE* fname, department** dest);
 bool compareEmployee(employee const& lhs, employee const& rhs);
 bool compareDepartment(department const& lhs, department const& rhs);
@@ -115,16 +116,9 @@ const char DSORT_NAME[] = "depSort";
 
 // Main function
 int main(){
-	FILE* efp = openFile(EMP_FNAME, "r");
-	FILE* dfp = openFile(DEPT_FNAME, "r");
-	employee* emp = getEmpTouple(efp);
-	displayEmp(emp);
-	department* dep = getDeptTouple(dfp);
-	displayDep(dep);
-	empDepartment* join = copy(dep, emp);
-	displayDepEmp(join);
-	FILE* jfp = openFile(OUTPUT_FNAME, "w");
-	writeEmpDepartment(jfp, join);
+    FILE** empFiles;
+    FILE** depFiles;
+    sortRuns(empFiles, depFiles);
 }
 
 
@@ -156,30 +150,41 @@ void sortRuns(FILE** empFiles, FILE** depFiles){
 	int i = 0;
     int num = 0;
     char fname[21];
-    fname = "empSorted"
-    fname
 	do{ 
         if(i == NUM_BLOCKS - 1){
             perror("Relation is to large for this algorithm. Not enough memory\n");
-            exit(3);
+            exit(0);
         }
 		num = readEmployees(efp, tempEmp);
         sortEmp(tempEmp);
-        
-        empFiles[i] = fopen(
-        if(num >= 0){
+
+        if(num > 0){
+            strcpy(fname, ESORT_NAME);
+            sprintf(fname,"%s%i", fname, i);
+            empFiles[i] = fopen(fname, "w+");
             writeEmployees(empFiles[i], tempEmp);
         }
         i++;
-        
 	} while(num >= 0);
-	
+	int numEmp = i;
     i = 0;
+    num = 0;
     department** tempDep = new department*[NUM_BLOCKS - 1];
     do{
+        if(i + numEmp == NUM_BLOCKS - 1){
+            perror("Relation to large for this algorithm. Not enough memeory\n");
+            exit(0);
+        }
+        num = readDepartments(dfp, tempDep);
+        sortDep(tempDep);
+        if(num > 0){
+            strcpy(fname, DSORT_NAME);
+            sprintf(fname, "%s%i", fname, i);
+            depFiles[i] = fopen(fname, "w+");
+            writeDepartments(depFiles[i], tempDep);
+        }
         
-    } while(tempDep);
-	return NULL;
+    } while(num >= 0);
 }
 
 
@@ -232,7 +237,9 @@ void writeEmployees(FILE* fname, employee** toDisk){
 		return;
 	}
 	for(int i = 0; i < NUM_BLOCKS - 1; ++i){
-		writeEmployee(fname, toDisk[i]);
+        if(toDisk[i]){
+            writeEmployee(fname, toDisk[i]);
+        }
 	}
 }
 
@@ -243,20 +250,20 @@ void writeDepartments(FILE* fname, department** toDisk){
 		return;
 	}
 	for(int i = 0; i < NUM_BLOCKS - 1; ++i){
-		writeDepartment(fname, toDisk[i]);
+        if(toDisk[i]){
+            writeDepartment(fname, toDisk[i]);
+        }
 	}
 }
 
 // takes a list of departments and returns a list of departments sorted on
 // mangerId.
-//TODO: Implement quick sort. :(
 void sortDep(department** departments){
     std::sort(departments, departments + (NUM_BLOCKS - 1));
 }
 
 
-//takes a list of employees and returns a list of employees sorted on eid.
-//TODO: Implement quick sort. :(  
+//takes a list of employees and returns a list of employees sorted on eid. 
 void sortEmp(employee** employees){
     std::sort(employees, employees + (NUM_BLOCKS - 1));
 }
