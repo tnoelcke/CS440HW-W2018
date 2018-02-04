@@ -138,7 +138,7 @@ void setUpFiles(FILE** toSetUp, const char* preFname){
 		cout << i << "\n";
 		if(toSetUp[i]){
             sprintf(fname, "%s%i", pname, i);
-            toSetUp[i] = freopen(fname, "r", toSetUp[i]);
+            toSetUp[i] = fopen(fname, "r");
 		} else {
 			return;
 		}
@@ -150,13 +150,17 @@ void setUpFiles(FILE** toSetUp, const char* preFname){
 void join(){
 	//sets files back to location 0.
     FILE** empFiles = new FILE*[20];
-    FILE** depFiles = new FILE* [20];
-	setUpFiles(empFiles, EMP_FNAME);
-	setUpFiles(depFiles, DEPT_FNAME);
+    FILE** depFiles = new FILE*[20];
+	setUpFiles(empFiles, ESORT_NAME);
+	setUpFiles(depFiles, DSORT_NAME);
 	
 	//set up list to hold our objects while we preform the merge.
 	department** departments = new department*[10];
 	employee** employees = new employee*[10];
+    for(int i = 0; i < 10; i++){
+        departments[i] = NULL;
+        employees[i] = NULL;
+    }
 	empDepartment* toOutput = new empDepartment;
 	FILE* output = fopen(OUTPUT_FNAME, "w");
 	
@@ -172,32 +176,33 @@ void join(){
 //this function takes our empfiles array, department files array and our list of employees and departments
 //and fills the lists from the file reading in the smallest tuple from each file.
 void fillMemory(FILE** empFiles, FILE** depFiles, employee** employees, department** departments){
-		bool memoryNotFull = true;
+		bool empStop = false;
+        bool depStop = false;
+        bool stop = false;
 		int empFileIndex = 0;
 		int depFileIndex = 0;
 		int eIndex = 0;
 		int dIndex = 0;
-		while(memoryNotFull){
-		cout << empFileIndex << "\n";
-		if(empFiles[empFileIndex] != NULL){
+		while(!stop){
+		if(empFiles[empFileIndex] != NULL && !empStop){
 			employees[eIndex] = getEmpTouple(empFiles[empFileIndex]);
 			empFileIndex++;
 			eIndex++;
 		} else {
-			empFileIndex = 0;
+			empStop = true;
 		}
-		cout << depFileIndex;
-		if(depFiles[depFileIndex] != NULL){
+		if(depFiles[depFileIndex] != NULL && !depStop){
 			cout << depFileIndex << "\n";
 			departments[dIndex] = getDeptTouple(depFiles[depFileIndex]);
 			depFileIndex++;
 			dIndex++;
 		} else {
-			depFileIndex = 0;
+			depStop = true;
 		}
 		if(eIndex + dIndex > NUM_BLOCKS - 2){
-			memoryNotFull = false;
+			stop = true;
 		}
+        stop = !(empStop && depStop);
 	}
 }
 
