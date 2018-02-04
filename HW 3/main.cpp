@@ -98,6 +98,8 @@ int readDepartments(FILE* fname, department** dest);
 void writeDepartments(FILE* fname, department** dest);
 bool compareEmployee(employee const& lhs, employee const& rhs);
 bool compareDepartment(department const& lhs, department const& rhs);
+void join(FILE** empFiles, FILE** depFiles);
+void setUpFiles(FILE** toSetUp);
 
 
 //Constants
@@ -115,12 +117,48 @@ int main(){
     sortRuns(empFiles, depFiles);
 }
 
-
+//this function takes a file name and a string of args
+//opens up the file and stops the program if the file
+//doesn't open.
 FILE* openFile(const char* fname,const char* args){
 	FILE* fp = fopen(fname, args);
 	if(!fp){
 		perror("Error opening file");
 		exit(1);
+	}
+}
+
+//takes a list of file pointers and resets them to point at the
+//begining of the file.
+void setUpFiles(FILE** toSetUp){
+	for(int i = 0; i > NUM_BLOCKS - 1; ++i){
+		if(toSetUp[i]){
+			fseek(toSetUp[i], 0, SEEK_SET);
+		} else {
+			return;
+		}
+	}
+}
+
+//takes to lists of files that point to the files on the disk
+//that contain the sorted runs of employees and departments.
+void join(FILE** empFiles, FILE** depFiles){
+	setUpFiles(empFiles);
+	setUpFiles(depFiles);
+	department** departments = new department*[10];
+	employee** employees = new employee*[10];
+	empDepartment* toOutput = new empDepartment;
+	FILE* output = fopen(OUTPUT_FNAME, "w+");
+	bool memoryNotFull = false;
+	int empFileIndex= 0;
+	int depFileIndex = 0;
+	int eIndex = 0;
+	int dIndex = 0;
+	//fill the memory with the smallest values from the files.
+	while(!memoryNotFull){
+		if(empFiles[empFileIndex] != NULL){
+			employees[eIndex] = getEmpTouple(empFiles[empFileIndex]);
+		}
 	}
 }
 
