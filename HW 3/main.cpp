@@ -101,6 +101,7 @@ bool compareDepartment(department const& lhs, department const& rhs);
 void join();
 void setUpFiles(FILE** toSetUp, const char* preFname);
 void fillMemory(FILE** empFiles, FILE** depFiles, employee** employees, department** departments);
+void foundAMatch(FILE* output, FILE* depFile, employee* emp, department* dep);
 
 
 //Constants
@@ -165,11 +166,69 @@ void join(){
 	
 	//fill the memory with the smallest values from the files.
 	fillMemory(empFiles, depFiles, employees, departments);
-	for(int i = 0; i < 10; i++){
-		displayEmp(employees[i]);
-		displayDep(departments[i]);
-	}
+    
+    bool done = false;
+    int empLow = 0;
+    int depLow = 0;
+    
+    while(!done){
+        //find the smallest records
+         for(int i =0; i < 10; i ++){
+             //if we've reached the end of both arrays break out of the loop.
+             if(!employees[i]  && !departments[i]){
+                 break;
+             }
+             if(departments[i]) {
+                 if(departments[i]->managerId < departments[depLow]->managerId){
+                    depLow = i;
+                }
+            }  
+            if(employees[i]){
+                if(employees[i]->eid < employees[empLow]->eid){
+                 empLow = i;
+                }
+            }
+         }
+         
+         //check to see if they join  if they join load a new department.
+         if(departments[depLow]->managerId == employees[empLow]->eid){
+            foundAMatch(output, depFiles[depLow], employees[empLow], departments[depLow]);
+             //if the smallest department is > smallest employee throw out the employee and get a new one. and start over.
+         } else if(departments[depLow]->managerId > employees[empLow]->eid){ 
+            delete employees[empLow];
+            employees[empLow] = getEmpTouple(empFiles[empLow]);
+         } else if(departments[depLow]->managerId < employees[empLow]->eid){ //if emp > dep trhow out dep and search dep to see if there is a match for emp.
+             for(int i = 0; i < 10; i++){
+                 //if we reach the end with out finding a match break
+                 if(departments[i] == NULL){
+                     break;
+                 }
+                 //if we find a match output it.
+                if(employees[empLow]->eid == departments[i]->managerId){
+                   foundAMatch(output, depFiles[i], employees[empLow], departments[i]); 
+                }
+             }
+             //get a new department
+             delete departments[depLow];
+             departments[depLow] = getDeptTouple(depFiles[depLow]);
+         }
+    }
+    //clean up. close and delete our files free up memory.
+    
 }
+
+//this function will be called every time we find a touple pair that matches and needs to be output.
+//this function will merge the department and employee. Remove the department and load a new one.
+//this function will also free the memory for the department before loading a new one and will free the memory
+//of out put once the data has been written.
+void foundAMatch(FILE* output, FILE* depFile, employee* emp, department* dep){
+    empDepartment* toOutput = copy(dep, emp);
+    writeEmpDepartment(output, toOutput);
+    delete toOutput;
+    delete dep;
+    dep = getDeptTouple(depFile);
+}
+
 
 
 //this function takes our empfiles array, department files array and our list of employees and departments
