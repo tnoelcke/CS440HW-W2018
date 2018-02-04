@@ -89,7 +89,7 @@ void displayDepEmp(empDepartment* ed);
 void writeEmployee(FILE* file, employee* emp);
 void writeDepartment(FILE* file, department* dep);
 void writeEmpDepartment(FILE* file, empDepartment* join);
-void sortRuns(FILE** empFiles, FILE** depFiles);
+void sortRuns();
 void sortDep(department** departments, int endIndex);
 void sortEmp(employee** employees, int endIndex);
 int readEmployees(FILE* fname, employee** dest);
@@ -98,8 +98,8 @@ int readDepartments(FILE* fname, department** dest);
 void writeDepartments(FILE* fname, department** dest);
 bool compareEmployee(employee const& lhs, employee const& rhs);
 bool compareDepartment(department const& lhs, department const& rhs);
-void join(FILE** empFiles, FILE** depFiles);
-void setUpFiles(FILE** toSetUp);
+void join();
+void setUpFiles(FILE** toSetUp, const char* preFname);
 void fillMemory(FILE** empFiles, FILE** depFiles, employee** employees, department** departments);
 
 
@@ -113,10 +113,8 @@ const char DSORT_NAME[] = "depSort";
 
 // Main function
 int main(){
-    FILE** empFiles;
-    FILE** depFiles;
-    sortRuns(empFiles, depFiles);
-	join(empFiles, depFiles);
+    sortRuns();
+	join();
 }
 
 //this function takes a file name and a string of args
@@ -132,11 +130,15 @@ FILE* openFile(const char* fname,const char* args){
 
 //takes a list of file pointers and resets them to point at the
 //begining of the file.
-void setUpFiles(FILE** toSetUp){
+void setUpFiles(FILE** toSetUp, const char* preFname){
+    char pname[20];
+    strcpy(pname, preFname);
+    char fname[21];
 	for(int i = 0; i < 10; ++i){
 		cout << i << "\n";
 		if(toSetUp[i]){
-			rewind(toSetUp[i]);
+            sprintf(fname, "%s%i", pname, i);
+            toSetUp[i] = freopen(fname, "r", toSetUp[i]);
 		} else {
 			return;
 		}
@@ -145,10 +147,12 @@ void setUpFiles(FILE** toSetUp){
 
 //takes to lists of files that point to the files on the disk
 //that contain the sorted runs of employees and departments.
-void join(FILE** empFiles, FILE** depFiles){
+void join(){
 	//sets files back to location 0.
-	setUpFiles(empFiles);
-	setUpFiles(depFiles);
+    FILE** empFiles = new FILE*[20];
+    FILE** depFiles = new FILE* [20];
+	setUpFiles(empFiles, EMP_FNAME);
+	setUpFiles(depFiles, DEPT_FNAME);
 	
 	//set up list to hold our objects while we preform the merge.
 	department** departments = new department*[10];
@@ -200,16 +204,11 @@ void fillMemory(FILE** empFiles, FILE** depFiles, employee** employees, departme
 //opens the files for the employee and department relations. Then takes those files and uses them to read in
 //blocks of size m - 1, sorts them on the join attribute and writes them to disk. This function will also calculate
 //how many files will be need to give each run its own file.
-void sortRuns(FILE** empFiles, FILE** depFiles){
+void sortRuns(){
 	FILE* efp = openFile(EMP_FNAME, "r");
     FILE* dfp = openFile(DEPT_FNAME, "r");
-    empFiles = new FILE*[NUM_BLOCKS - 2];
-    depFiles = new FILE*[NUM_BLOCKS - 2];
-    //so i know how many files i have later once I'm done.
-    for (int i = 0; i < NUM_BLOCKS - 2; ++i){
-        empFiles[i] = NULL;
-        depFiles[i] = NULL;
-    }
+    FILE* empFile;
+    FILE* depFile;
     
 	//reads in 21 employee's at a time and sorts them outputting them to their own file.
 	employee** tempEmp = new employee*[NUM_BLOCKS - 1];
@@ -225,8 +224,9 @@ void sortRuns(FILE** empFiles, FILE** depFiles){
         if(num > 0){
             strcpy(fname, ESORT_NAME);
             sprintf(fname,"%s%i", fname, i);
-            empFiles[i] = fopen(fname, "w+");
-            writeEmployees(empFiles[i], tempEmp);
+            empFile = fopen(fname, "w");
+            writeEmployees(empFile, tempEmp);
+            fclose(empFile);
         }
         i++;
 	} while(num > 0);
@@ -244,8 +244,9 @@ void sortRuns(FILE** empFiles, FILE** depFiles){
 			sortDep(tempDep, num + 1);
             strcpy(fname, DSORT_NAME);
             sprintf(fname, "%s%i", fname, i);
-            depFiles[i] = fopen(fname, "w+");
-            writeDepartments(depFiles[i], tempDep);
+            depFile = fopen(fname, "w");
+            writeDepartments(depFile, tempDep);
+            fclose(depFile);
         }
 		i++;
     } while(num > 0);
