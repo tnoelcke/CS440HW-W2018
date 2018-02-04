@@ -49,6 +49,11 @@ typedef struct employee
     char ename[STRING_LEN];
     long int age;
     double salary;
+
+    bool operator<(const employee& rhs) const
+    {
+        return (eid < rhs.eid);
+    }
     
 } employee;
 
@@ -59,6 +64,11 @@ typedef struct department
     char dname[STRING_LEN];
     double budget;
     long int managerId;
+    
+    bool operator<(const department& rhs) const
+    {
+        return (managerId < rhs.managerId);
+    }
 } department;
 
 typedef struct empDepartment 
@@ -70,8 +80,7 @@ typedef struct empDepartment
     double budget;
     double salary;
 	long int age;
-    long int managerId;
-    
+    long int managerId;    
 } empDepartment;
 
 //Function Headers
@@ -92,7 +101,8 @@ bool readEmployees(FILE* fname, employee** dest);
 void writeEmployees(FILE* fname, employee** dest);
 bool readDepartments(FILE* fname, department** dest);
 void writeDepartments(FILE* fname, department** dest);
-
+bool compareEmployee(employee const& lhs, employee const& rhs);
+bool compareDepartment(department const& lhs, department const& rhs);
 
 
 //Constants
@@ -145,6 +155,16 @@ FILE** sortRuns(){
 	return NULL;
 }
 
+//this function compares two employees and returns true if the first one
+//is greater than the second one.
+bool compareEmployee(employee* lhs, employee* rhs){
+    return (lhs->eid < rhs->eid);
+}
+
+
+bool compareDepartment(department* lhs, department* rhs){
+    return(lhs->managerId < rhs->managerId);
+}
 
 //reads in a list of employees just the right size to fit into the input buffer size - 1
 //so we have room to sort the data with a temp slot. Will store the result in dest.
@@ -218,16 +238,15 @@ void writeDepartments(FILE* fname, department** toDisk){
 // takes a list of departments and returns a list of departments sorted on
 // mangerId.
 //TODO: Implement quick sort. :(
-void sortDep(department** departments, int index){
-
-	
+void sortDep(department** departments){
+    std::sort(departments, departments + (NUM_BLOCKS - 1));
 }
 
 
 //takes a list of employees and returns a list of employees sorted on eid.
 //TODO: Implement quick sort. :(  
-void sortEmp(employee** employee){
-	
+void sortEmp(employee** employees){
+    std::sort(employees, employees + (NUM_BLOCKS - 1));
 }
 
 
