@@ -100,6 +100,7 @@ bool compareEmployee(employee const& lhs, employee const& rhs);
 bool compareDepartment(department const& lhs, department const& rhs);
 void join(FILE** empFiles, FILE** depFiles);
 void setUpFiles(FILE** toSetUp);
+void fillMemory(FILE** empFiles, FILE** depFiles, employee** employees, department** departments);
 
 
 //Constants
@@ -115,6 +116,7 @@ int main(){
     FILE** empFiles;
     FILE** depFiles;
     sortRuns(empFiles, depFiles);
+	join(empFiles, depFiles);
 }
 
 //this function takes a file name and a string of args
@@ -131,9 +133,10 @@ FILE* openFile(const char* fname,const char* args){
 //takes a list of file pointers and resets them to point at the
 //begining of the file.
 void setUpFiles(FILE** toSetUp){
-	for(int i = 0; i > NUM_BLOCKS - 1; ++i){
+	for(int i = 0; i < 10; ++i){
+		cout << i << "\n";
 		if(toSetUp[i]){
-			fseek(toSetUp[i], 0, SEEK_SET);
+			rewind(toSetUp[i]);
 		} else {
 			return;
 		}
@@ -143,21 +146,53 @@ void setUpFiles(FILE** toSetUp){
 //takes to lists of files that point to the files on the disk
 //that contain the sorted runs of employees and departments.
 void join(FILE** empFiles, FILE** depFiles){
+	//sets files back to location 0.
 	setUpFiles(empFiles);
 	setUpFiles(depFiles);
+	
+	//set up list to hold our objects while we preform the merge.
 	department** departments = new department*[10];
 	employee** employees = new employee*[10];
 	empDepartment* toOutput = new empDepartment;
-	FILE* output = fopen(OUTPUT_FNAME, "w+");
-	bool memoryNotFull = false;
-	int empFileIndex= 0;
-	int depFileIndex = 0;
-	int eIndex = 0;
-	int dIndex = 0;
+	FILE* output = fopen(OUTPUT_FNAME, "w");
+	
 	//fill the memory with the smallest values from the files.
-	while(!memoryNotFull){
+	fillMemory(empFiles, depFiles, employees, departments);
+	for(int i = 0; i < 10; i++){
+		displayEmp(employees[i]);
+		displayDep(departments[i]);
+	}
+}
+
+
+//this function takes our empfiles array, department files array and our list of employees and departments
+//and fills the lists from the file reading in the smallest tuple from each file.
+void fillMemory(FILE** empFiles, FILE** depFiles, employee** employees, department** departments){
+		bool memoryNotFull = true;
+		int empFileIndex = 0;
+		int depFileIndex = 0;
+		int eIndex = 0;
+		int dIndex = 0;
+		while(memoryNotFull){
+		cout << empFileIndex << "\n";
 		if(empFiles[empFileIndex] != NULL){
 			employees[eIndex] = getEmpTouple(empFiles[empFileIndex]);
+			empFileIndex++;
+			eIndex++;
+		} else {
+			empFileIndex = 0;
+		}
+		cout << depFileIndex;
+		if(depFiles[depFileIndex] != NULL){
+			cout << depFileIndex << "\n";
+			departments[dIndex] = getDeptTouple(depFiles[depFileIndex]);
+			depFileIndex++;
+			dIndex++;
+		} else {
+			depFileIndex = 0;
+		}
+		if(eIndex + dIndex > NUM_BLOCKS - 2){
+			memoryNotFull = false;
 		}
 	}
 }
@@ -212,7 +247,7 @@ void sortRuns(FILE** empFiles, FILE** depFiles){
             depFiles[i] = fopen(fname, "w+");
             writeDepartments(depFiles[i], tempDep);
         }
-        i++;
+		i++;
     } while(num > 0);
 }
 
@@ -268,6 +303,7 @@ void writeEmployees(FILE* fname, employee** toDisk){
 	for(int i = 0; i < NUM_BLOCKS - 1; ++i){
         if(toDisk[i]){
             writeEmployee(fname, toDisk[i]);
+			fflush(fname);
         }
 	}
 }
@@ -281,6 +317,7 @@ void writeDepartments(FILE* fname, department** toDisk){
 	for(int i = 0; i < NUM_BLOCKS - 1; ++i){
         if(toDisk[i]){
             writeDepartment(fname, toDisk[i]);
+			fflush(fname);
         }
 	}
 }
