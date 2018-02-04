@@ -110,6 +110,8 @@ const int NUM_BLOCKS = 22;
 const char EMP_FNAME[] = "employee.csv";
 const char DEPT_FNAME[] = "department.csv";
 const char OUTPUT_FNAME[] = "join.csv";
+const char ESORT_NAME[] = "empSort";
+const char DSORT_NAME[] = "depSort";
 
 // Main function
 int main(){
@@ -137,54 +139,66 @@ FILE* openFile(const char* fname,const char* args){
 //opens the files for the employee and department relations. Then takes those files and uses them to read in
 //blocks of size m - 1, sorts them on the join attribute and writes them to disk. This function will also calculate
 //how many files will be need to give each run its own file.
-FILE** sortRuns(){
+void sortRuns(FILE** empFiles, FILE** depFiles){
 	//ToDo: calculate the number of files I will need.
-	
+	FILE* efp = openFile(EMP_FNAME, "r");
+    FILE* dfp = openFile(DEPT_FNAME, "r");
+    empFiles = new FILE*[NUM_BLOCKS - 2];
+    depFiles = new FILE*[NUM_BLOCKS - 2];
+    //so i know how many files i have later once I'm done.
+    for (int i = 0; i < NUM_BLOCKS - 2; ++i){
+        empFiles[i] = NULL;
+        depFiles[i] = NULL;
+    }
+    
 	//reads in 21 employee's at a time and sorts them outputting them to their own file.
-	employee** temp = new employee*[NUM_BLOCKS - 1];
+	employee** tempEmp = new employee*[NUM_BLOCKS - 1];
 	int i = 0;
-	do{
-		//TODO Read in an employee.
-		i++;
-		//TODO write employees to file.
-		if(i == NUM_BLOCKS - 1){
-			i = 0;
-		}
-	} while(temp);
+    int num = 0;
+    char fname[21];
+    fname = "empSorted"
+    fname
+	do{ 
+        if(i == NUM_BLOCKS - 1){
+            perror("Relation is to large for this algorithm. Not enough memory\n");
+            exit(3);
+        }
+		num = readEmployees(efp, tempEmp);
+        sortEmp(tempEmp);
+        
+        empFiles[i] = fopen(
+        if(num >= 0){
+            writeEmployees(empFiles[i], tempEmp);
+        }
+        i++;
+        
+	} while(num >= 0);
 	
+    i = 0;
+    department** tempDep = new department*[NUM_BLOCKS - 1];
+    do{
+        
+    } while(tempDep);
 	return NULL;
 }
 
-//this function compares two employees and returns true if the first one
-//is greater than the second one.
-bool compareEmployee(employee* lhs, employee* rhs){
-    return (lhs->eid < rhs->eid);
-}
-
-
-bool compareDepartment(department* lhs, department* rhs){
-    return(lhs->managerId < rhs->managerId);
-}
 
 //reads in a list of employees just the right size to fit into the input buffer size - 1
 //so we have room to sort the data with a temp slot. Will store the result in dest.
 //returns true if there are still more employees to read in returns false if we hit EOF.
-bool readEmployees(FILE* fname, employee** dest){
-	if(!fname){
-		return false;
+int readEmployees(FILE* fname, employee** dest){
+	int toReturn = 0;
+    if(!fname){
+		return -1;
 	}
 	if(!dest){
 		dest = new employee* [NUM_BLOCKS];
 	}
-	bool toReturn = true;
-	if(!fname){
-		return false;
-	}
 	for(int i = 0; i < NUM_BLOCKS - 1; ++i){
 		dest[i] = getEmpTouple(fname);
 		//tells the calling client we have reached EOF
-		if(!dest[i]){
-			toReturn = false;
+		if(dest[i]){
+			toReturn = i;
 		}
 	}
 	return toReturn;
@@ -192,22 +206,20 @@ bool readEmployees(FILE* fname, employee** dest){
 
 
 //does the same thing as readEmployees except for departments.
-bool readDepartments(FILE* fname, department** dest){
-	bool toReturn = true;
+int readDepartments(FILE* fname, department** dest){
+	int toReturn = 0;
 	if(!fname){
-		return false;
+		return -1;
 	}
 	if(!dest){
 		dest = new department* [NUM_BLOCKS];
 	}
-	if(!fname){
-		return false;
-	}
+    
 	for(int i = 0; i < NUM_BLOCKS - 1; ++i){
 		dest[i] = getDeptTouple(fname);
 		//tells the calling client that we have reached eof.
-		if(!dest[i]){
-			toReturn = false;
+		if(dest[i]){
+			toReturn = i;
 		}
 	}
 	return toReturn;
