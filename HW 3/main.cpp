@@ -168,6 +168,8 @@ void join(){
 	fillMemory(empFiles, depFiles, employees, departments);
     
     bool done = false;
+    bool empLowSet = false;
+    bool depLowSet = false;
     int empLow = 0;
     int depLow = 0;
     
@@ -179,22 +181,36 @@ void join(){
                  break;
              }
              if(departments[i]) {
-                 if(departments[i]->managerId < departments[depLow]->managerId){
+                 if(departments[i]->managerId <= departments[depLow]->managerId){
                     depLow = i;
+                    depLowSet =true;
                 }
-            }  else{
+            }  else if(!depLowSet){
                 depLow++;
             }
             if(employees[i]){
-                if(employees[i]->eid < employees[empLow]->eid){
-                 empLow = i;
+                if(employees[i]->eid <= employees[empLow]->eid){
+                    empLow = i;
+                    empLowSet = true;
                 }
-            } else {
+            } else if(!empLowSet) {
                 empLow++;
             }
          }
          
+         
+         cout << "\n\n\n";
+         cout << "depIndex:" << depLow << "\n";
+         cout << "empIndex:" << empLow << "\n";
+         displayDep(departments[depLow]);
+         displayEmp(employees[empLow]);
+         cout << "\n\n\n";
+         
          //check to see if they join  if they join load a new department.
+         for(int i = 0; i < 3; i++){
+             displayDep(departments[i]);
+             displayEmp(employees[i]);
+         }
          if(departments[depLow]->managerId == employees[empLow]->eid){
             foundAMatch(output, depFiles[depLow], employees[empLow], departments[depLow]);
              //if the smallest department is > smallest employee throw out the employee and get a new one. and start over.
@@ -230,6 +246,8 @@ void join(){
          done = empDone || depDone;
          empLow = 0;
          depLow = 0;
+         empLowSet = false;
+         depLowSet = false;
     }
     //clean up. close and delete our files free up memory.
     
@@ -304,6 +322,7 @@ void sortRuns(){
         }
 		num = readEmployees(efp, tempEmp);
         if(num > 0){
+            sortEmp(tempEmp, num + 1);
             strcpy(fname, ESORT_NAME);
             sprintf(fname,"%s%i", fname, i);
             empFile = fopen(fname, "w");
