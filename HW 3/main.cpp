@@ -177,7 +177,7 @@ void join(){
         //find the smallest records
          for(int i =0; i < 10; i ++){
              //if we've reached the end of both arrays break out of the loop.
-             if(!employees[i]  && !departments[i]){
+             if(!employees[i]  && !departments[i] && empLowSet && depLowSet){
                  break;
              }
              if(departments[i]) {
@@ -229,7 +229,6 @@ void join(){
                 }
              }
              //get a new department
-             delete departments[depLow];
              departments[depLow] = getDeptTouple(depFiles[depLow]);
          }
          bool empDone = true;
