@@ -102,6 +102,11 @@ void join();
 void setUpFiles(FILE** toSetUp, const char* preFname);
 void fillMemory(FILE** empFiles, FILE** depFiles, employee** employees, department** departments);
 void foundAMatch(FILE* output, FILE* depFile, employee* emp, department* dep);
+void freeEmp(employee* emp);
+void freeDep(department* dep);
+void freeDepList(department** dep);
+void freeEmpList(employee** emp);
+
 
 
 //Constants
@@ -229,6 +234,7 @@ void join(){
                 }
              }
              //get a new department
+             delete departments[depLow];
              departments[depLow] = getDeptTouple(depFiles[depLow]);
          }
          bool empDone = true;
@@ -305,15 +311,15 @@ void fillMemory(FILE** empFiles, FILE** depFiles, employee** employees, departme
 //how many files will be need to give each run its own file.
 void sortRuns(){
 	FILE* efp = openFile(EMP_FNAME, "r");
-    FILE* dfp = openFile(DEPT_FNAME, "r");
-    FILE* empFile;
-    FILE* depFile;
+  FILE* dfp = openFile(DEPT_FNAME, "r");
+  FILE* empFile;
+  FILE* depFile;
     
 	//reads in 21 employee's at a time and sorts them outputting them to their own file.
 	employee** tempEmp = new employee*[NUM_BLOCKS - 1];
 	int i = 0;
-    int num = 0;
-    char fname[21];
+  int num = 0;
+  char fname[21];
 	do{ 
         if(i == NUM_BLOCKS - 1){
             perror("Relation is to large for this algorithm. Not enough memory\n");
@@ -374,6 +380,37 @@ int readEmployees(FILE* fname, employee** dest){
 	return toReturn;
 }
 
+//frees the memory of a list of detpartments
+void freeDepList(department** dep){
+  if(!dep) return;
+  for(int i = 0; i < sizeof(dep)/sizeof(dep[0]); i++){
+    freeDep(dep[i]);  
+  }
+}
+
+//frees the memory for a single employee
+void freeEmp(employee* emp){
+  if(emp != NULL){
+    delete emp;
+    emp = NULL;
+  }
+}
+
+//frees the memeory for a single department.
+void freeDep(department* dep){
+  if(dep != 0){
+    delete dep;
+    dep = NULL;
+  }
+}
+
+//Frees the memory of a list of employees
+void freeEmpList(employee** emp){
+  if(!emp) return;
+  for(int i = 0; i < sizeof(emp)/sizeof(emp[0]); i++){
+    freeEmp(emp[i]);
+  }
+}
 
 //does the same thing as readEmployees except for departments.
 int readDepartments(FILE* fname, department** dest){
@@ -404,7 +441,7 @@ void writeEmployees(FILE* fname, employee** toDisk){
 	for(int i = 0; i < NUM_BLOCKS - 1; ++i){
         if(toDisk[i]){
             writeEmployee(fname, toDisk[i]);
-			fflush(fname);
+			      fflush(fname);
         }
 	}
 }
