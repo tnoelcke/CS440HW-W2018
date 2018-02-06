@@ -166,7 +166,7 @@ void join(){
         departments[i] = NULL;
         employees[i] = NULL;
     }
-	empDepartment* toOutput = new empDepartment;
+	empDepartment* toOutput;
 	FILE* output = fopen(OUTPUT_FNAME, "w");
 	
 	//fill the memory with the smallest values from the files.
@@ -204,23 +204,12 @@ void join(){
          }
          
          
-         cout << "\n\n\n";
-         cout << "depIndex:" << depLow << "\n";
-         cout << "empIndex:" << empLow << "\n";
-         displayDep(departments[depLow]);
-         displayEmp(employees[empLow]);
-         cout << "\n\n\n";
-         
          //check to see if they join  if they join load a new department.
-         for(int i = 0; i < 3; i++){
-             displayDep(departments[i]);
-             displayEmp(employees[i]);
-         }
          if(departments[depLow]->managerId == employees[empLow]->eid){
             foundAMatch(output, depFiles[depLow], employees[empLow], departments[depLow]);
              //if the smallest department is > smallest employee throw out the employee and get a new one. and start over.
          } else if(departments[depLow]->managerId > employees[empLow]->eid){ 
-            delete employees[empLow];
+            freeEmp(employees[empLow]);
             employees[empLow] = getEmpTouple(empFiles[empLow]);
          } else if(departments[depLow]->managerId < employees[empLow]->eid){ //if emp > dep trhow out dep and search dep to see if there is a match for emp.
              for(int i = 0; i < 10; i++){
@@ -234,7 +223,7 @@ void join(){
                 }
              }
              //get a new department
-             delete departments[depLow];
+             //freeDep(departments[depLow]);
              departments[depLow] = getDeptTouple(depFiles[depLow]);
          }
          bool empDone = true;
@@ -254,8 +243,6 @@ void join(){
          empLowSet = false;
          depLowSet = false;
     }
-    //clean up. close and delete our files free up memory.
-    
 }
 
 //this function will be called every time we find a touple pair that matches and needs to be output.
@@ -266,7 +253,7 @@ void foundAMatch(FILE* output, FILE* depFile, employee* emp, department* dep){
     empDepartment* toOutput = copy(dep, emp);
     writeEmpDepartment(output, toOutput);
     delete toOutput;
-    delete dep;
+    freeDep(dep);
     dep = getDeptTouple(depFile);
 }
 
@@ -310,16 +297,16 @@ void fillMemory(FILE** empFiles, FILE** depFiles, employee** employees, departme
 //blocks of size m - 1, sorts them on the join attribute and writes them to disk. This function will also calculate
 //how many files will be need to give each run its own file.
 void sortRuns(){
-	FILE* efp = openFile(EMP_FNAME, "r");
-  FILE* dfp = openFile(DEPT_FNAME, "r");
-  FILE* empFile;
-  FILE* depFile;
+    FILE* efp = openFile(EMP_FNAME, "r");
+    FILE* dfp = openFile(DEPT_FNAME, "r");
+    FILE* empFile;
+    FILE* depFile;
     
 	//reads in 21 employee's at a time and sorts them outputting them to their own file.
 	employee** tempEmp = new employee*[NUM_BLOCKS - 1];
 	int i = 0;
-  int num = 0;
-  char fname[21];
+    int num = 0;
+    char fname[21];
 	do{ 
         if(i == NUM_BLOCKS - 1){
             perror("Relation is to large for this algorithm. Not enough memory\n");
@@ -336,6 +323,11 @@ void sortRuns(){
         }
         i++;
 	} while(num > 0);
+    
+    //clean up memory
+    fclose(efp);
+    freeEmpList(tempEmp);
+    
 	int numEmp = i;
     i = 0;
     num = 0;
@@ -356,6 +348,10 @@ void sortRuns(){
         }
 		i++;
     } while(num > 0);
+    
+    //clean up memory
+    fclose(dfp);
+    freeDepList(tempDep);
 }
 
 
@@ -386,6 +382,8 @@ void freeDepList(department** dep){
   for(int i = 0; i < sizeof(dep)/sizeof(dep[0]); i++){
     freeDep(dep[i]);  
   }
+  delete dep;
+  dep = NULL;
 }
 
 //frees the memory for a single employee
@@ -398,7 +396,7 @@ void freeEmp(employee* emp){
 
 //frees the memeory for a single department.
 void freeDep(department* dep){
-  if(dep != 0){
+  if(dep != NULL){
     delete dep;
     dep = NULL;
   }
@@ -410,6 +408,8 @@ void freeEmpList(employee** emp){
   for(int i = 0; i < sizeof(emp)/sizeof(emp[0]); i++){
     freeEmp(emp[i]);
   }
+  delete emp;
+  emp = NULL;
 }
 
 //does the same thing as readEmployees except for departments.
