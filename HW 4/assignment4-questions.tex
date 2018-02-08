@@ -79,7 +79,7 @@ FROM Product p, Company c
 WHERE p.company-name = c.name and p.production-year > 2000 and p.rating = 5
 \end{verbatim}
 
-Suggest an optimized logical query plan for the above query.
+Suggest an optimized logical query plan for the above query.\\
 
 \paragraph{Solution:} \hfill \break
 For the above query the logical plan would be to first select products who's rating is 5. Given that there are only five options for this value it is likely that this at least reduces the number of products by 1/5. While doing this you would only select the company name and product name for each tuple who's rating was 5. Next you would select the items from the resulting list that were made after 2000. Next you would select Company name from C. Finally you would join the results on the company name.\\
@@ -112,6 +112,7 @@ selectivity factors of joining on each attribute.
   & & V(W,D) =50 & V(U,D) =100\\\hline
 \end{tabular}
 
+\paragraph{Solution:} \hfill \break
 
 
 
@@ -130,6 +131,23 @@ If a commit or abort is not shown, the schedule is incomplete; assume that abort
 \item T1:R(X), T1:R(Y), T1:W(X), T2:R(Y), T3:W(Y), T1:W(X), T2:R(Y)
 \end{enumerate}
 
+\paragraph{Solution:} \hfill \break
+	In the graphic below you will see that I've drawn out both of these schedules in terms of when the writes and the reads happen. After doing this I drew the lines between the different operations. Finally I drew a tree representing the different transactions. If they have a cycle they are not serializable. To determine if they are 2PL I added the locks that would be needed in a 2PL implementaion and determined if the order of the operations in the transaction would be allowed. For each of these steps you will find a different graphic below.\\
+
+\paragraph{Serliazable:} \hfill \break
+Schedule One:
+After creating the serialization graph you can see that no cycle is created as the schedule is T1 -> T3 -> T2. This is a serializable schedule.\\
+%insert the first graphic here.
+
+
+Schedule Two: Showed by the graphic below you can see that this schedule is serializable. After drawing the serialization graph you can see that no cycle is formed and the order is T1 -> T3 -> T2.\\
+%insert the second graphic here.
+
+\paragraph{2PL:} \hfill \break
+%include 2PL graphic here.
+Schedule One: As you can see in the graphic in section one. This graph is not PL2 because T3 will be unable to write to X as long as T1 has a shared lock on X which would not be released until after T1 reads in Y.\\
+
+Schedule Two: This however is not a 2PL schedule as T3 would be required to write to Y when T2 still has a shared lock on Y. In a 2PL scheme this can't happen.\\
 
 
 \end{document}
