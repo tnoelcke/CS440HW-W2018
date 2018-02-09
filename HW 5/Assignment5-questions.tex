@@ -1,0 +1,98 @@
+%=======================02-713 LaTeX template, following the 15-210 template==================
+%
+% You don't need to use LaTeX or this template, but you must turn your homework in as
+% a typeset PDF somehow.
+%
+% How to use:
+%    1. Update your information in section "A" below
+%    2. Write your answers in section "B" below. Precede answers for all 
+%       parts of a question with the command "\question{n}{desc}" where n is
+%       the question number and "desc" is a short, one-line description of 
+%       the problem. There is no need to restate the problem.
+%    3. If a question has multiple parts, precede the answer to part x with the
+%       command "\part{x}".
+%    4. If a problem asks you to design an algorithm, use the commands
+%       \algorithm, \correctness, \runtime to precede your discussion of the 
+%       description of the algorithm, its correctness, and its running time, respectively.
+%    5. You can include graphics by using the command \includegraphics{FILENAME}
+%
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{comment}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt plus 1pt}
+\setlength{\headheight}{13.6pt}
+\newcommand\question[2]{\vspace{.25in}\hrule\textbf{#1: #2}\vspace{.5em}\hrule\vspace{.10in}}
+\renewcommand\part[1]{\vspace{.10in}\textbf{(#1)}}
+\newcommand\algorithm{\vspace{.10in}\textbf{Algorithm: }}
+\newcommand\correctness{\vspace{.10in}\textbf{Correctness: }}
+\newcommand\runtime{\vspace{.10in}\textbf{Running time: }}
+\pagestyle{fancyplain}
+\lhead{\textbf{\NAME\ \ANDREWID}}
+\chead{\textbf{Assignment\HWNUM}}
+\rhead{CS 440, Winter 2018}
+\begin{document}\raggedright
+%Section A==============Change the values below to match your information==================
+\newcommand\NAME{Oregon State University}  % your name
+\newcommand\ANDREWID{}     % your andrew id
+\newcommand\HWNUM{5}              % the homework number
+%Section B==============Put your answers to the questions below here=======================
+
+% no need to restate the problem --- the graders know which problem is which,
+% but replacing "The First Problem" with a short phrase will help you remember
+% which problem this is when you read over your homeworks to study.
+
+The assignment is to be turned in before noon (by 11:59 am) on February 13 , 2018. 
+You should turn in the solutions to this assignment as a pdf file through the TEACH website.
+The solutions should be produced using editing software programs, such as LaTeX or Word, otherwise they will not be graded.
+
+
+\question{1}{Multi-granularity Locking (1 point)}
+Consider a database DB with relations R1 and R2. 
+The relation R1 contains tuples t1 and t2 and the relation R2 contains
+tuples t3, t4, and t5. Assume that the database DB, relations, and tuples form a hierarchy of lockable database elements.
+Explain the sequence of lock requests and the response of the locking scheduler to the following schedule. 
+You may assume all lock requests occur just before they are needed, and all unlocks occur at the end of the transaction.
+\vspace{0.5em}
+
+\begin{itemize}
+\item T1:R(t1), T2:W(t2), T2:R(t3), T1:W(t4)
+\end{itemize}
+
+\question{2}{Degrees of Consistency (1 point)}
+Consider the schedule shown at Table~\ref{schedule}.
+
+\begin{table}[h!]
+\begin{tabular}{ l |l |l |l |}
+   &  T1 & T2 \\
+  0 & start &   \\
+  1 & read X &  \\
+  2 & write X &   \\
+  3 &  &  start \\
+  4 &  &  read X \\
+  5 &  &  write X \\
+  6 &  &  Commit \\
+  7 & read Y&  \\
+  8 & write Y&  \\
+  9 & Commit&  \\
+\end{tabular}
+\caption{Transaction schedule}
+\label{schedule} 
+\end{table}
+\vspace{-1em} 
+
+What are the maximum degrees of consistency for T1 and T2
+in this schedule? You must find the maximum degrees of consistency for T1 and T2 that makes this schedule possible.
+The degree of consistency for T1 may be different from the degree of consistency of T2.
+
+\end{document}
