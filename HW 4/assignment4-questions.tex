@@ -44,7 +44,7 @@
 \begin{document}\raggedright
 %Section A==============Change the values below to match your information==================
 \newcommand\NAME{Oregon State University}  % your name
-\newcommand\ANDREWID{}     % your andrew id
+\newcommand\ANDREWID{noelcket}     % your andrew id
 \newcommand\HWNUM{4}              % the homework number
 %Section B==============Put your answers to the questions below here=======================
 
@@ -113,7 +113,22 @@ selectivity factors of joining on each attribute.
 \end{tabular}
 
 \paragraph{Solution:} \hfill \break
+In the graphic shown below we can see that the Final cost of the Join was 378000 IO accesses and the final size of the join would be \~ 400 tuples. To compute this I used the following formulas:\\
 
+\[ Cost(R S) = 3 B(R) + 3 B(S) = 3/5 T(R) + 3/5 T(S) \]
+
+
+When computing something with a nested join say U(RS) I Used: \hfill \break
+
+\[ Cost(U(R S)) = 3 B(U) + 3 B(R S) = 3/5 T(U) + 3/5 T(R S) + Cost(R S) \]
+
+To compute the Size i used the following formula: \hfill \break
+
+\[ Size (R S) = T(R) * T(S) / Max(V(S, A), V(R, A)) * Max(V(S, B), V(R, B)) * ...\]
+
+Where we can keep going based on the number of attributes we are joining on. Shown in the graphic below are the Formulas above applied to the relations in the problem.\\
+
+\includegraphics{JoinPlan.JPG}
 
 
 
@@ -123,7 +138,7 @@ For each of the following schedules, state which of the preceding classes it bel
 If you cannot decide whether a schedule belongs to a certain class based on the listed actions, explain briefly your reasons.
 
 The actions are listed in the order they are scheduled and prefixed with the transaction name. 
-If a commit or abort is not shown, the schedule is incomplete; assume that abort or commit must follow all the listed actions.
+If a commit or abort is not shown, the schedule is incomplete; assume that abort or commit must follow all the listed actions.\\
 
 
 \begin{enumerate}
@@ -139,15 +154,15 @@ Schedule One:
 After creating the serialization graph you can see that no cycle is created as the schedule is T1 -> T3 -> T2. This is a serializable schedule.\\
 %insert the first graphic here.
 
+\includegraphics{Schedule.JPG}
 
-Schedule Two: Showed by the graphic below you can see that this schedule is serializable. After drawing the serialization graph you can see that no cycle is formed and the order is T1 -> T3 -> T2.\\
-%insert the second graphic here.
+
+Schedule Two: Showed by the graphic above you can see that this schedule is not serializable. After drawing the serialization graph you can see that a cycle is formed between T2 and T3. Specifically we can say that T2 is getting a dirty read on Y.\\
 
 \paragraph{2PL:} \hfill \break
 %include 2PL graphic here.
 Schedule One: As you can see in the graphic in section one. This graph is not PL2 because T3 will be unable to write to X as long as T1 has a shared lock on X which would not be released until after T1 reads in Y.\\
 
-Schedule Two: This however is not a 2PL schedule as T3 would be required to write to Y when T2 still has a shared lock on Y. In a 2PL scheme this can't happen.\\
-
+Schedule Two: This Schedule is not serializable and therefore isn't 2PL.\\
 
 \end{document}
