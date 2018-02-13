@@ -43,8 +43,8 @@
 \rhead{CS 440, Winter 2018}
 \begin{document}\raggedright
 %Section A==============Change the values below to match your information==================
-\newcommand\NAME{Oregon State University}  % your name
-\newcommand\ANDREWID{}     % your andrew id
+\newcommand\NAME{Thomas Noelcke}  % your name
+\newcommand\ANDREWID{noelcket}     % your andrew id
 \newcommand\HWNUM{5}              % the homework number
 %Section B==============Put your answers to the questions below here=======================
 
@@ -54,7 +54,7 @@
 
 The assignment is to be turned in before noon (by 11:59 am) on February 13 , 2018. 
 You should turn in the solutions to this assignment as a pdf file through the TEACH website.
-The solutions should be produced using editing software programs, such as LaTeX or Word, otherwise they will not be graded.
+The solutions should be produced using editing software programs, such as LaTeX or Word, otherwise they will not be graded.\\
 
 
 \question{1}{Multi-granularity Locking (1 point)}
@@ -66,8 +66,27 @@ You may assume all lock requests occur just before they are needed, and all unlo
 \vspace{0.5em}
 
 \begin{itemize}
-\item T1:R(t1), T2:W(t2), T2:R(t3), T1:W(t4)
+\item T1:R(tp1), T2:W(tp2), T2:R(tp3), T1:W(tp4)
 \end{itemize}
+
+\paragraph{Solution:} \hfill \break
+In this section I will go over each operation in the above list and discuss the locks that each operation would require while also discussing the response of the scheduler to each operation. note I've modified the above list and changed t1 \(tuple 1\) to be tp1 to avoid confusion.\\
+
+\paragraph{Abbreviations} \hfill \break
+IS: Intention to Shared Lock \hfill \break
+IX: Intention to Exclusive lock \hfill \break
+S: Shared Lock\hfill \break
+SIX: Shared Intention to Exclusive lock \hfill \break
+X: Exclusive Lock \hfill \break
+
+
+\paragraph{T1:R(tp1):} This operation would cause a IS lock to be created on the DB, and R1. This would also cause a SL on tp1. For this operation the Scheduler would grant the locks mentioned above.\\
+
+\paragraph{T2:W(tp2):} This operation would cause an IX lock to be placed on the DB, and R1. This operation would also cause an exclusive lock on tp2. The scheduler would grant the locks in this case.\\
+
+\paragraph{T2:R(tp3):} This operation would cause an IS lock on the DB and on R2. This would also cause an S lock on tp3. In this case the scheduler would not complain and would grant all locks. At this point T2 would be complete and would release all of its locks. Including the IX lock on the DB and R1. The X lock on tp2. The shared lock on the DB and R2. Finally, It would also release the shared lock on tp3.\\
+
+\paragraph{T1: W(tp4):} This operation would cause an IX lock to placed on DB and R2. This would also cause an X lock to be placed on tp4. The Scheduler would grant the locks mentioned above because T1 would be the only transaction with locks on the database. After this transaction T1 would also release all its locks on the database.\\
 
 \question{2}{Degrees of Consistency (1 point)}
 Consider the schedule shown at Table~\ref{schedule}.
@@ -94,5 +113,14 @@ Consider the schedule shown at Table~\ref{schedule}.
 What are the maximum degrees of consistency for T1 and T2
 in this schedule? You must find the maximum degrees of consistency for T1 and T2 that makes this schedule possible.
 The degree of consistency for T1 may be different from the degree of consistency of T2.
+
+\subsection{Solution:}
+
+\paragraph{T1:} \hfill \break
+	In this schedule the maximum degree of T1 is degree 2. This is because T1 does not do any dirty reads of data that T2 has written. However the tuple Y is dirtied by T2 meaning that there is some data that has been dirtied during T1 and that it can't be degree 3.\\
+	
+	
+\paragraph{T2:} \hfill \break
+In this scheme the maximum degree of T2 is Degree three. This is because this transaction is essentially carried out in serial. There are no other operations that occur during T2. This means that there can not be and dirty data in T2 or any dirty reads.\\
 
 \end{document}
