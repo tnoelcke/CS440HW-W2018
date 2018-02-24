@@ -32,6 +32,7 @@
 #include<stdlib.h>
 #include<algorithm>
 #include<sys/stat.h>
+#include<ctime>
 using namespace std;
 
 
@@ -113,23 +114,32 @@ const char DEPT_FNAME[] = "department.csv";
 const char OUTPUT_FNAME[] = "join.csv";
 const char LOG_FNAME[] = "joinLog";
 const bool TEST_CRASH = true;
-const int STABILITY = 15;
+const int STABILITY = 33;
 
 // Main function
+// First we set up the files we know we are going to need to read form.
+// Then we check if there is a log file from a previously aborted session.
+// If yes the we prefmore a recovery to recover the staet of the aborted merge.
+// IF no we start a normal merge.
 int main(){
+    srand(time(0));
     FILE* depFile = openFile(DEPT_FNAME, "r");
     FILE* empFile = openFile(EMP_FNAME, "r");
     FILE* outFile;
     FILE* logFile;
     if(fileExits(LOG_FNAME) && fileExits(OUTPUT_FNAME)){
+        cout << "State Dirty\nRecovering Aborted Merge\n";
         logFile = openFile(LOG_FNAME, "a+");
         outFile = openFile(OUTPUT_FNAME, "a");
         recover(logFile, depFile, empFile, outFile);
+        cout << "Merge Recovered restarting Join\n";
     } else {
+        cout << "State Clean\nPreforming Merge\n";
         outFile = openFile(OUTPUT_FNAME, "w");
         logFile = openFile(LOG_FNAME, "w"); 
     }
     join(outFile, depFile, empFile, logFile);
+    cout << "Join Complete\nRemoving Log\n";
     fclose(depFile);
     fclose(empFile);
     fclose(outFile);
@@ -172,40 +182,40 @@ void join(FILE* output, FILE* depFile, FILE* empFile, FILE* logFile){
     //this value will get set to true if we hit EOF on either file.
     emp = getEmpTouple(empFile);
     dep = getDeptTouple(depFile);
+    int empPrevious = 0;
+    int depPrevious = 0;
     bool isDone = emp == NULL || dep == NULL;
 
     //will replace these later with the positions of the files when we start.
     outPutLog(logFile, ftell(depFile), ftell(empFile), ftell(output));
     do {
-        displayDep(dep);
-        displayEmp(emp);
         if(emp != NULL && dep != NULL){
             //if the ID's match join the two and out put them
             if(emp->eid == dep->managerId){
                 testCrash();
-                cout << "FOUND A MATCH\n";
                 empDepartment* toOutput = copy(dep, emp);
                 writeEmpDepartment(output, toOutput);
-                outPutLog(logFile, ftell(depFile), ftell(empFile), ftell(output));
+                outPutLog(logFile, depPrevious, empPrevious, ftell(output));
                 delete toOutput;
                 delete dep;
+                depPrevious = ftell(depFile);
                 dep = getDeptTouple(depFile);
-                outPutLog(logFile, ftell(depFile), ftell(empFile), ftell(output));
+                outPutLog(logFile, depPrevious, empPrevious, ftell(output));
 
             //if emp is > dep discard of dep and read in a new emp
             } else if(emp->eid > dep->managerId){
-                cout << "EMP > DEP \n";
                 delete dep;
+                depPrevious = ftell(depFile);
                 dep = getDeptTouple(depFile);
-                outPutLog(logFile, ftell(depFile), ftell(empFile), ftell(output));
+                outPutLog(logFile, depPrevious, empPrevious, ftell(output));
                 testCrash();
              //if dep > emp discard emp and read in a new emp.
             } else {
-                cout << "DEP > EMP\n";
                 delete emp;
+                empPrevious = ftell(empFile);
                 emp = getEmpTouple(empFile);
+                outPutLog(logFile, depPrevious, empPrevious, ftell(output));
                 testCrash();
-                outPutLog(logFile, ftell(depFile), ftell(empFile), ftell(output));
             }
         }
         //if either emp or dep are set to null we have hit EOF
@@ -234,24 +244,25 @@ void recover(FILE* logFile, FILE* depFile, FILE* empFile, FILE* output){
     fseek(depFile, state->depPos, SEEK_SET);
     fseek(empFile, state->empPos, SEEK_SET);
     fseek(output, state->joinPos, SEEK_SET);
+
+    //cleaning up memory
+    delete state;
 }
 
 
-//reads in the last entry from the logfile.
+//reads in the last entry from the logfile. by searching back through the log file and finding
+//the second newline. Then reading in the resulting logEntry.
 logEntry* getLastEntry(FILE* logFile){
     fseek(logFile, 0, SEEK_END);
     int pos = ftell(logFile);
     int linNum = 0;
     fseek(logFile, pos, SEEK_SET);
-    cout << "\nTrying to find the last log\n";
+    cout << "Retriving Last State from log\n";
     int output;
     char character;
     while(linNum < 2){
         output = fgetc(logFile);
         character = output;
-        cout << "character: " << character << " Int: " << output << '\n';
-        long int pos2 = ftell(logFile);
-        cout << "POS: " << pos <<" pos: " << pos2 << "\n";
         if(character == '\n'){
             linNum++;
         }
@@ -259,13 +270,8 @@ logEntry* getLastEntry(FILE* logFile){
         fseek(logFile, pos, SEEK_SET);
     }
     fseek(logFile, pos + 2, SEEK_SET);
-    cout << ftell(logFile) << "\n";
-    //while(output != EOF){
-    //    output = fgetc(logFile);
-    //    character = output;
-    //    cout << "Int: " << output << " Char: " << character<< " POS: " << ftell(logFile) << "\n";
-    //}
     logEntry* last = readLog(logFile);
+    cout << "Previous State:\n";
     displayLog(last);
     return last;
 }
@@ -274,7 +280,7 @@ logEntry* getLastEntry(FILE* logFile){
 //crash resistant.
 void testCrash(){
     if(TEST_CRASH && rand() % STABILITY == 0){
-        cout << "\nI ran into a problem Aborting\n";
+        cout << "\nError: Aborting Execution!\n";
         abort();
     }
 }
