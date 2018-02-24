@@ -113,7 +113,7 @@ const char DEPT_FNAME[] = "department.csv";
 const char OUTPUT_FNAME[] = "join.csv";
 const char LOG_FNAME[] = "joinLog";
 const bool TEST_CRASH = true;
-const int STABILITY = 35;
+const int STABILITY = 15;
 
 // Main function
 int main(){
@@ -122,8 +122,8 @@ int main(){
     FILE* outFile;
     FILE* logFile;
     if(fileExits(LOG_FNAME) && fileExits(OUTPUT_FNAME)){
-        logFile = openFile(LOG_FNAME, "a");
-        outFile = fopen(OUTPUT_FNAME, "a");
+        logFile = openFile(LOG_FNAME, "a+");
+        outFile = openFile(OUTPUT_FNAME, "a");
         recover(logFile, depFile, empFile, outFile);
     } else {
         outFile = openFile(OUTPUT_FNAME, "w");
@@ -147,13 +147,18 @@ bool fileExits(const char* fname) {
     result = (fp != NULL);
     if(fp != NULL) {
         result = fgetc(fp) != EOF;
+        fclose(fp);
     }
     return result;
 }
 
 //delets the logfile after we are done using it as to show that the join was sucessfully completed.
 void cleanUp(){
-
+    if(remove(LOG_FNAME) != 0){
+        cout << "There was an error deleting the log file\n";
+    } else {
+        cout << "Log File sucessfully removed\n";
+    }
 }
 
 
@@ -234,22 +239,34 @@ void recover(FILE* logFile, FILE* depFile, FILE* empFile, FILE* output){
 
 //reads in the last entry from the logfile.
 logEntry* getLastEntry(FILE* logFile){
+    fseek(logFile, 0, SEEK_END);
     int pos = ftell(logFile);
     int linNum = 0;
     fseek(logFile, pos, SEEK_SET);
     cout << "\nTrying to find the last log\n";
+    int output;
     char character;
     while(linNum < 2){
-        character = getc(logFile);
-        cout << "character: " << character << '\n';
+        output = fgetc(logFile);
+        character = output;
+        cout << "character: " << character << " Int: " << output << '\n';
+        long int pos2 = ftell(logFile);
+        cout << "POS: " << pos <<" pos: " << pos2 << "\n";
         if(character == '\n'){
             linNum++;
         }
-        pos--;
+        pos = pos - 1;
         fseek(logFile, pos, SEEK_SET);
     }
+    fseek(logFile, pos + 2, SEEK_SET);
+    cout << ftell(logFile) << "\n";
+    //while(output != EOF){
+    //    output = fgetc(logFile);
+    //    character = output;
+    //    cout << "Int: " << output << " Char: " << character<< " POS: " << ftell(logFile) << "\n";
+    //}
     logEntry* last = readLog(logFile);
-
+    displayLog(last);
     return last;
 }
 
@@ -400,17 +417,18 @@ void writeLog(FILE* log, logEntry* entry){
 
 //this function takes a FILE* and reads a log entry from that FILE* and
 //returns it.
-logEntry* readLog(FILE* log){
+logEntry* readLog(FILE* logFile){
     logEntry* entry = new logEntry;
-    if(!feof(log)) {
-        fscanf(log, "%i, %i, %i\n", &entry->depPos, &entry->empPos, &entry->joinPos);
+    if(!feof(logFile)) {
+        fscanf(logFile, "%i, %i, %i\n", &entry->depPos, &entry->empPos, &entry->joinPos);
     } else {
         entry = NULL;
     }
+    return entry;
 }
 
 // This function displays a log entry out to the console.
 // This is used for debugging only.
 void displayLog(logEntry* toDisplay){
-    cout << "DepPos: " << toDisplay->depPos << " EmpPos: " << toDisplay << " joinPos: " << toDisplay->joinPos << "\n";
+    cout << "DepPos: " << toDisplay->depPos << " EmpPos: " << toDisplay->empPos << " joinPos: " << toDisplay->joinPos << "\n";
 }
