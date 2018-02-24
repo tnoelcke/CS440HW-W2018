@@ -104,7 +104,7 @@ int main(){
     join(outFile, depFile, empFile);
     fclose(depFile);
     fclose(empFile);
-    fclose(depFile);
+    fclose(outFile);
     exit(0);
 }
 
@@ -116,23 +116,32 @@ void join(FILE* output, FILE* depFile, FILE* empFile){
     employee* emp;
     department* dep;
     //this value will get set to true if we hit EOF on either file.
-    bool isDone = false
+    emp = getEmpTouple(empFile);
+    dep = getDeptTouple(depFile);
+    bool isDone = emp == NULL || dep == NULL;
     do {
-        emp = getEmpTouple(empFile);
-        dep = getDeptTouple(depFile);
         displayDep(dep);
         displayEmp(emp);
-        //if the ID's match join the two and out put them
-        if(emp.eid == dep.managerId){
-            foundAMatch(output, depFile, dep, emp);
-        //if emp is > dep discard of dep and read in a new emp
-        } else if(emp.eid > dep.managerId){
-            delete dep;
-            dep = getDeptTouple(depFile);
-        //if dep > emp discard emp and read in a new emp.
-        } else {
-            delete emp;
-            emp = getEmpTouple(empFile);
+        if(emp != NULL && dep != NULL){
+            //if the ID's match join the two and out put them
+            if(emp->eid == dep->managerId){
+                cout << "FOUND A MATCH\n";
+                empDepartment* toOutput = copy(dep, emp);
+                writeEmpDepartment(output, toOutput);
+                delete toOutput;
+                delete dep;
+                dep = getDeptTouple(depFile);
+            //if emp is > dep discard of dep and read in a new emp
+            } else if(emp->eid > dep->managerId){
+                cout << "EMP > DEP \n";
+                delete dep;
+                dep = getDeptTouple(depFile);
+             //if dep > emp discard emp and read in a new emp.
+            } else {
+                cout << "DEP > EMP\n";
+                delete emp;
+                emp = getEmpTouple(empFile);
+            }
         }
         //if either emp or dep are set to null we have hit EOF
         isDone = emp == NULL || dep == NULL;
@@ -167,16 +176,6 @@ void sortDep(){
     fclose(depFile);
 }
 
-//Takes an output file, a department file, an employee pointer and a department pointer.
-//It then takes the department and employee's and merges them together out puts them to the
-//out put file and then frees the memory and reads in a new department.
-void foundAMatch(FILE* output, FILE* depFile, department* dep, employee* emp){
-    empDepartment* toOutput = copy(dep, emp);
-    writeEmpDepartment(output, toOutput);
-    delete toOutput;
-    delete dep;
-    getDeptTouple(depFile);
-}
 
 //this function takes a file name and a string of args
 //opens up the file and stops the program if the file
