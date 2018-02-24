@@ -104,6 +104,7 @@ void outPutLog(FILE* logFile, long int dep, long int emp, long int output);
 logEntry* getLastEntry(FILE* logFile);
 bool fileExits(const char* fname);
 void testCrash();
+void cleanUp();
 
 //Constants
 const int NUM_BLOCKS = 22;
@@ -121,18 +122,21 @@ int main(){
     FILE* outFile;
     FILE* logFile;
     if(fileExits(LOG_FNAME) && fileExits(OUTPUT_FNAME)){
-        
+        logFile = openFile(LOG_FNAME, "a");
         outFile = fopen(OUTPUT_FNAME, "a");
         recover(logFile, depFile, empFile, outFile);
     } else {
         outFile = openFile(OUTPUT_FNAME, "w");
         logFile = openFile(LOG_FNAME, "w"); 
-        join(outFile, depFile, empFile, logFile);
-        fclose(depFile);
-        fclose(empFile);
-        fclose(outFile);
-        exit(0);
     }
+    join(outFile, depFile, empFile, logFile);
+    fclose(depFile);
+    fclose(empFile);
+    fclose(outFile);
+    fclose(logFile);
+    cleanUp();
+    exit(0);
+
 }
 
 //checks if a file exits and is non empty.
@@ -147,6 +151,10 @@ bool fileExits(const char* fname) {
     return result;
 }
 
+//delets the logfile after we are done using it as to show that the join was sucessfully completed.
+void cleanUp(){
+
+}
 
 
 //this function preforms the join by reading in one tuple from each file
@@ -169,6 +177,7 @@ void join(FILE* output, FILE* depFile, FILE* empFile, FILE* logFile){
         if(emp != NULL && dep != NULL){
             //if the ID's match join the two and out put them
             if(emp->eid == dep->managerId){
+                testCrash();
                 cout << "FOUND A MATCH\n";
                 empDepartment* toOutput = copy(dep, emp);
                 writeEmpDepartment(output, toOutput);
@@ -184,11 +193,13 @@ void join(FILE* output, FILE* depFile, FILE* empFile, FILE* logFile){
                 delete dep;
                 dep = getDeptTouple(depFile);
                 outPutLog(logFile, ftell(depFile), ftell(empFile), ftell(output));
+                testCrash();
              //if dep > emp discard emp and read in a new emp.
             } else {
                 cout << "DEP > EMP\n";
                 delete emp;
                 emp = getEmpTouple(empFile);
+                testCrash();
                 outPutLog(logFile, ftell(depFile), ftell(empFile), ftell(output));
             }
         }
@@ -213,20 +224,40 @@ void outPutLog(FILE* logFile, long int dep, long int emp, long int output){
 //this file will read the log file and determine what position the 
 //depFile and empFile need to be set to. It will then set those files at
 //the last known position in the log file.
-void recover(FILE* logFile, FILE* depFile, FILE* empFile){
+void recover(FILE* logFile, FILE* depFile, FILE* empFile, FILE* output){
     logEntry* state = getLastEntry(logFile);
+    fseek(depFile, state->depPos, SEEK_SET);
+    fseek(empFile, state->empPos, SEEK_SET);
+    fseek(output, state->joinPos, SEEK_SET);
 }
 
 
 //reads in the last entry from the logfile.
 logEntry* getLastEntry(FILE* logFile){
+    int pos = ftell(logFile);
+    int linNum = 0;
+    fseek(logFile, pos, SEEK_SET);
+    cout << "\nTrying to find the last log\n";
+    char character;
+    while(linNum < 2){
+        character = getc(logFile);
+        cout << "character: " << character << '\n';
+        if(character == '\n'){
+            linNum++;
+        }
+        pos--;
+        fseek(logFile, pos, SEEK_SET);
+    }
+    logEntry* last = readLog(logFile);
 
+    return last;
 }
 
 //this function will randomly crash our program. This is used to check that our program is indeed
 //crash resistant.
 void testCrash(){
     if(TEST_CRASH && rand() % STABILITY == 0){
+        cout << "\nI ran into a problem Aborting\n";
         abort();
     }
 }
