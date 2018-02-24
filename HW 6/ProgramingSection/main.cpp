@@ -82,7 +82,7 @@ void displayDepEmp(empDepartment* ed);
 void writeEmployee(FILE* file, employee* emp);
 void writeDepartment(FILE* file, department* dep);
 void writeEmpDepartment(FILE* file, empDepartment* join);
-void foundAMatch(FILE* output, FILE* depFile, employee* emp, department* dep);
+void foundAMatch(FILE* output, FILE* depFile, department* dep, employee* emp);
 void freeEmp(employee* emp);
 void freeDep(department* dep);
 void join(FILE* output, FILE* depFile, FILE* empFile);
@@ -101,16 +101,42 @@ int main(){
     FILE* depFile = openFile(DEPT_FNAME, "r");
     FILE* empFile = openFile(EMP_FNAME, "r");
     FILE* outFile = openFile(OUTPUT_FNAME, "w");
-
+    join(outFile, depFile, empFile);
+    fclose(depFile);
+    fclose(empFile);
+    fclose(depFile);
+    exit(0);
 }
 
 //this function preforms the join by reading in one tuple from each file
 //and attempting the join. IN the future this function will also be responsible for
 //preforming actions to log all steps.
 void join(FILE* output, FILE* depFile, FILE* empFile){
+    //set up variables to hold read in values
     employee* emp;
     department* dep;
-    
+    //this value will get set to true if we hit EOF on either file.
+    bool isDone = false
+    do {
+        emp = getEmpTouple(empFile);
+        dep = getDeptTouple(depFile);
+        displayDep(dep);
+        displayEmp(emp);
+        //if the ID's match join the two and out put them
+        if(emp.eid == dep.managerId){
+            foundAMatch(output, depFile, dep, emp);
+        //if emp is > dep discard of dep and read in a new emp
+        } else if(emp.eid > dep.managerId){
+            delete dep;
+            dep = getDeptTouple(depFile);
+        //if dep > emp discard emp and read in a new emp.
+        } else {
+            delete emp;
+            emp = getEmpTouple(empFile);
+        }
+        //if either emp or dep are set to null we have hit EOF
+        isDone = emp == NULL || dep == NULL;
+    } while(!isDone);
 }
 
 //reads in and sorts the DEP file then writes the result to the file. made this so
@@ -144,7 +170,7 @@ void sortDep(){
 //Takes an output file, a department file, an employee pointer and a department pointer.
 //It then takes the department and employee's and merges them together out puts them to the
 //out put file and then frees the memory and reads in a new department.
-void foundAMatch(FILE* output, FILE* depFile, employee* emp, department* dep){
+void foundAMatch(FILE* output, FILE* depFile, department* dep, employee* emp){
     empDepartment* toOutput = copy(dep, emp);
     writeEmpDepartment(output, toOutput);
     delete toOutput;
