@@ -99,7 +99,9 @@ const char LOG_FNAME[] = "joinLog";
 // Main function
 int main(){
     FILE* depFile = openFile(DEPT_FNAME, "r");
-    sortDep();
+    FILE* empFile = openFile(EMP_FNAME, "r");
+    FILE* outFile = openFile(OUTPUT_FNAME, "w");
+
 }
 
 //this function preforms the join by reading in one tuple from each file
@@ -108,15 +110,17 @@ int main(){
 void join(FILE* output, FILE* depFile, FILE* empFile){
     employee* emp;
     department* dep;
+    
 }
 
 //reads in and sorts the DEP file then writes the result to the file. made this so
-//I could sort the files i was given in the given format.
+//I could sort the files i was given in the given format. RUN THIS FUNCTION TO SORT THE
+//department.csv file so that it is in accending order on mangerid.
 void sortDep(){
     FILE* depFile = openFile(DEPT_FNAME, "r");
     department** toSort = new department*[100];
-    for(int i = 0; i < 100; i++){
-        toSort[i] = NULL;
+    for(int j = 0; j < 100; j++){
+        toSort[j] = NULL;
     }
     department* toAdd;
     toAdd = getDeptTouple(depFile);
@@ -126,12 +130,13 @@ void sortDep(){
         toSort[i] = toAdd;
         i++;
         toAdd = getDeptTouple(depFile);
+        displayDep(toAdd);
     }
-    std::sort(toSort, toSort + i);
+    std::sort(toSort, toSort + i, compareDep);
     fclose(depFile);
     depFile = openFile(DEPT_FNAME, "w");
     for(int j = 0; j < i; j++){
-        writeDepartment(depFile, toSort[i]);
+        writeDepartment(depFile ,toSort[j]);
     }
     fclose(depFile);
 }
