@@ -99,7 +99,7 @@ const char LOG_FNAME[] = "joinLog";
 // Main function
 int main(){
     FILE* depFile = openFile(DEPT_FNAME, "r");
-    sortDep(depFile);
+    sortDep();
 }
 
 //this function preforms the join by reading in one tuple from each file
@@ -114,8 +114,8 @@ void join(FILE* output, FILE* depFile, FILE* empFile){
 //I could sort the files i was given in the given format.
 void sortDep(){
     FILE* depFile = openFile(DEPT_FNAME, "r");
-    department toSort[100];
-    for(int i = 0; i < 100, i++){
+    department** toSort = new department*[100];
+    for(int i = 0; i < 100; i++){
         toSort[i] = NULL;
     }
     department* toAdd;
@@ -124,13 +124,13 @@ void sortDep(){
     while(toAdd != NULL)
     {
         toSort[i] = toAdd;
-        i++
+        i++;
         toAdd = getDeptTouple(depFile);
     }
     std::sort(toSort, toSort + i);
     fclose(depFile);
     depFile = openFile(DEPT_FNAME, "w");
-    for(int j = 0; j < i + 1; j++){
+    for(int j = 0; j < i; j++){
         writeDepartment(depFile, toSort[i]);
     }
     fclose(depFile);
