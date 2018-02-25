@@ -1,0 +1,355 @@
+%=======================02-713 LaTeX template, following the 15-210 template==================
+%
+% You don't need to use LaTeX or this template, but you must turn your homework in as
+% a typeset PDF somehow.
+%
+% How to use:
+%    1. Update your information in section "A" below
+%    2. Write your answers in section "B" below. Precede answers for all 
+%       parts of a question with the command "\question{n}{desc}" where n is
+%       the question number and "desc" is a short, one-line description of 
+%       the problem. There is no need to restate the problem.
+%    3. If a question has multiple parts, precede the answer to part x with the
+%       command "\part{x}".
+%    4. If a problem asks you to design an algorithm, use the commands
+%       \algorithm, \correctness, \runtime to precede your discussion of the 
+%       description of the algorithm, its correctness, and its running time, respectively.
+%    5. You can include graphics by using the command \includegraphics{FILENAME}
+%
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{comment}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt plus 1pt}
+\setlength{\headheight}{13.6pt}
+\newcommand\question[2]{\vspace{.25in}\hrule\textbf{#1: #2}\vspace{.5em}\hrule\vspace{.10in}}
+\renewcommand\part[1]{\vspace{.10in}\textbf{(#1)}}
+\newcommand\algorithm{\vspace{.10in}\textbf{Algorithm: }}
+\newcommand\correctness{\vspace{.10in}\textbf{Correctness: }}
+\newcommand\runtime{\vspace{.10in}\textbf{Running time: }}
+\pagestyle{fancyplain}
+\lhead{\textbf{\NAME\ \ANDREWID}}
+\chead{\textbf{Assignment \HWNUM}}
+\rhead{CS 440, Winter 2018}
+\begin{document}\raggedright
+%Section A==============Change the values below to match your information==================
+\newcommand\NAME{Thomas Noelcke}  % your name
+\newcommand\ANDREWID{noelcket}     % your andrew id
+\newcommand\HWNUM{6}              % the homework number
+%Section B==============Put your answers to the questions below here=======================
+
+% no need to restate the problem --- the graders know which problem is which,
+% but replacing "The First Problem" with a short phrase will help you remember
+% which problem this is when you read over your homeworks to study.
+
+The assignment is to be turned in before Midnight (by 11:59pm) on February 27. 
+You should turn in the written parts of the solutions as a single pdf file through the TEACH website.
+The written solutions should be produced using editing software programs, such as LaTeX or Word, otherwise they will not be graded.
+You should turn in the source code and executable files for the programming assignment through the TEACH website.
+
+\question{1}{Recovery and ARIES (4 points)} 
+In this problem, you need to simulate the actions taken by ARIES algorithm.
+Consider the following log records and buffer actions:
+
+\begin{table}[h!]
+\begin{tabular}{ l |l |l |l |}
+  time & LSN & Log & Buffer actions\\
+  0 & 00 & update: T1 updates P7 & P7 brought in to the buffer \\
+  1 & 10 & update: T0 updates P9 & P9 brought into the buffer; P9 flushed to disk\\
+  2 & 20 & update: T1 updates P8 & P8 brought into the buffer; P8 flushed to disk \\
+  3 & 30 & begin\_checkpoint &   \\
+  4 &  40 & end\_checkpoint &   \\
+  5 & 50 & update: T1 updates P9 &  P9 brought into the buffer \\
+  6 & 60 & update: T2 updates P6 &  P6 brought into the buffer \\
+  7 & 70 & update: T1 updates P5 &  P5 brought into the buffer \\
+  8 & 80 & update: T1 updates P7 &  P6 flushed to disk \\
+  9 & & CRASH RESTART&   \\
+\end{tabular} 
+\end{table}
+ \vspace{-1em} 
+
+ \part{a} For the actions listed above, show Transaction Table (XT)
+  and Dirty Page Table (DPT) after each action. Assume that 
+  DPT holds pageID and recLSN, and XT contains transID and
+  lastLSN.
+   
+{\bf Solution:}
+
+Let XT denote xact table and DPT denote dirty page table.
+
+After time 0:
+
+XT   \begin{tabular}{ |l |l |l |}\hline
+  transaction & lastLSN & status \\\hline
+  T1 & 00 & active  \\\hline
+  \end{tabular} 
+ \ DPT \begin{tabular}{ |l |l |}\hline
+    page & recLSN \\\hline
+    P7 & 00  \\\hline
+    \end{tabular} 
+  
+After time 1:
+
+XT   \begin{tabular}{ |l |l |l |}\hline
+  transaction & lastLSN & status \\\hline
+  T1 & 00 & active  \\\hline
+  T0 & 10 & active  \\\hline
+  \end{tabular} 
+ \ DPT \begin{tabular}{ |l |l |}\hline
+    page & recLSN \\\hline
+    P7 & 00  \\\hline
+    \end{tabular} 
+
+After time 2:
+
+XT   \begin{tabular}{ |l |l |l |}\hline
+  transaction & lastLSN & status \\\hline
+  T1 & 20 & active  \\\hline
+  T0 & 10 & active  \\\hline
+  \end{tabular} 
+ \ DPT \begin{tabular}{ |l |l |}\hline
+    page & recLSN \\\hline
+    P7 & 00  \\\hline
+    \end{tabular}
+    
+After time 3: same as above.
+
+After time 4: same as above.
+
+After time 5:
+
+XT   \begin{tabular}{ |l |l |l |}\hline
+  transaction & lastLSN & status \\\hline
+  T1 & 50 & active  \\\hline
+  T0 & 10 & active  \\\hline
+  \end{tabular} 
+ \ DPT \begin{tabular}{ |l |l |}\hline
+    page & recLSN \\\hline
+    P7 & 00  \\\hline
+    P9 & 50  \\\hline
+    \end{tabular}
+  
+After time 6:
+
+XT   \begin{tabular}{ |l |l |l |}\hline
+  transaction & lastLSN & status \\\hline
+  T1 & 50 & active  \\\hline
+  T0 & 10 & active  \\\hline
+  T2 & 60 & active  \\\hline
+  \end{tabular} 
+ \ DPT \begin{tabular}{ |l |l |}\hline
+    page & recLSN \\\hline
+    P7 & 00  \\\hline
+    P9 & 50  \\\hline
+    P6 & 60  \\\hline
+    \end{tabular}
+
+After time 7:
+
+XT   \begin{tabular}{ |l |l |l |}\hline
+  transaction & lastLSN & status \\\hline
+  T1 & 70 & active  \\\hline
+  T0 & 10 & active  \\\hline
+  T2 & 60 & active  \\\hline
+  \end{tabular} 
+ \ DPT \begin{tabular}{ |l |l |}\hline
+    page & recLSN \\\hline
+    P7 & 00  \\\hline
+    P9 & 50  \\\hline
+    P6 & 60  \\\hline
+    P5 & 70  \\\hline
+    \end{tabular}
+
+After time 8:
+
+XT   \begin{tabular}{ |l |l |l |}\hline
+  transaction & lastLSN & status \\\hline
+  T1 & 80 & active  \\\hline
+  T0 & 10 & active  \\\hline
+  T2 & 60 & active  \\\hline
+  \end{tabular} 
+ \ DPT \begin{tabular}{ |l |l |}\hline
+    page & recLSN \\\hline
+    P7 & 00  \\\hline
+    P9 & 50  \\\hline
+    P5 & 70  \\\hline
+    \end{tabular}
+
+Note: P6 is written out with pageLSN = 80.
+
+  \part{b} Simulate Analysis phase to reconstruct XT and DPT after crash. Identify the point where the Analysis phase starts scanning 
+  log records and show XT and DPT after each action.
+ 
+{\bf Solution:}
+  
+  Analysis phase begins by examining the most recent checkpoint and
+  initializing the XP and DPT at the time of the checkpoint, i.e.,
+  after time 2 in solution to part (a).
+  
+  After time 5:
+  
+  XT   \begin{tabular}{ |l |l |l |}\hline
+    transaction & lastLSN & status \\\hline
+    T1 & 50 & active  \\\hline
+    T0 & 10 & active  \\\hline
+    \end{tabular} 
+   \ DPT \begin{tabular}{ |l |l |}\hline
+      page & recLSN \\\hline
+      P7 & 00  \\\hline
+      P9 & 50  \\\hline
+      \end{tabular}
+  
+  After time 6:
+  
+  XT   \begin{tabular}{ |l |l |l |}\hline
+    transaction & lastLSN & status \\\hline
+    T1 & 50 & active  \\\hline
+    T0 & 10 & active  \\\hline
+    T2 & 60 & active  \\\hline
+    \end{tabular} 
+   \ DPT \begin{tabular}{ |l |l |}\hline
+      page & recLSN \\\hline
+      P7 & 00  \\\hline
+      P9 & 50  \\\hline
+      P6 & 60  \\\hline
+      \end{tabular}
+
+
+  After time 7:
+  
+  XT   \begin{tabular}{ |l |l |l |}\hline
+    transaction & lastLSN & status \\\hline
+    T1 & 70 & active  \\\hline
+    T0 & 10 & active  \\\hline
+    T2 & 60 & active  \\\hline
+    \end{tabular} 
+   \ DPT \begin{tabular}{ |l |l |}\hline
+      page & recLSN \\\hline
+      P7 & 00  \\\hline
+      P9 & 50  \\\hline
+      P6 & 60  \\\hline
+      P5 & 70  \\\hline
+      \end{tabular}
+  
+  After time 8:
+  
+  XT   \begin{tabular}{ |l |l |l |}\hline
+    transaction & lastLSN & status \\\hline
+    T1 & 80 & active  \\\hline
+    T0 & 10 & active  \\\hline
+    T2 & 60 & active  \\\hline
+    \end{tabular} 
+   \ DPT \begin{tabular}{ |l |l |}\hline
+      page & recLSN \\\hline
+      P7 & 00  \\\hline
+      P9 & 50  \\\hline
+      P6 & 60  \\\hline
+      P5 & 70  \\\hline
+      \end{tabular}
+
+  
+  \part{c} Simulate Redo phase: first identify where the Redo phase
+  starts scanning the log records. Then, for each action identify whether it needs to be redone or not.
+  
+  {\bf Solution:}
+  
+  Redo starts from the smallest recLSN in DPT at the end of Analysis,
+  i.e., LSN=00. Table~\ref{redo} shows whether each action needs to 
+  be redone and the reason.
+  
+  \begin{table}{h!}
+  \begin{tabular}{ |l |l |l |}\hline
+      LSN & Redone? & Why Not? \\\hline
+      00 & Yes &   \\\hline
+      10 & No & affected page in DPT but recLSN is greater than 10  \\\hline
+      20 & No & affected page not in DPT   \\\hline
+      30 & No & checkpoint   \\\hline
+      40 & No & checkpoint   \\\hline
+      50 & Yes &   \\\hline
+      60 & No & pageLSN 80 is greater than 60  \\\hline
+      70 & Yes &  \\\hline
+      80 & Yes &  \\\hline
+      \end{tabular}
+ \caption{Redo operations}
+ \label{redo} 
+       
+  \end{table}
+
+
+  
+ \part{d} Simulate Undo phase: identify all actions that need to be 
+ undone. In what order will they be undone?
+ 
+ {\bf Solution:}
+   
+   As no transaction committed, all actions will be undone
+   in the decreasing order of LSN. That is UNDO 80, 70, 60, 50,
+   20, 10, and 00. 
+
+
+\question{2}{Recovery (6 points)}
+Consider the following relations:
+\begin{verbatim}
+Dept (did (integer), dname (string), budget (double), managerid (integer))
+Emp (eid (integer), ename (string), age (integer), salary (double))
+\end{verbatim}
+
+Fields of types \textit{integer}, \textit{double}, and \textit{string} occupy 4, 8, and 40 bytes, respectively. 
+Each block can fit at most one tuple of an input relation. There are at most 22 blocks available to the join algorithm in the main memory.
+Assume that relations {\it Dept} and {\it Emp} are sorted according to attributes {\it managerid} and {\it eid}, respectively.
+
+\part{a}
+Explain a join algorithm that efficiently computes \textit{Dept}~$\bowtie_{Dept.managerid=Emp.eid}$~\textit{Emp} by merging these relations.
+We do {\it not} want to repeat the join from the beginning if a crash happens during the join computation. Instead, your algorithm must avoid recomputing the joint tuples that have been computed before the crash and continue the join computation after the database system restarts.
+The final output of your algorithm must be exactly the same as the result of the join as if no crash has happened during the join computation.
+You should explain the steps that your algorithm will follow during the normal execution of join and the techniques that it uses after a restart.\\
+
+\paragraph{\textbf{Solution:}} \hfill \break
+In order to compute this join and enable it to be able to easily recover We should make the join as simple as possible. As such My algorithm will only read in one tuple at a time from each relation. We can do this because we are guaranteed that we are given the files in sorted order. This allows to keep the state of the join much more concise. Below I will explain how the join part of the algorithm works and then how the the logging and recovery part of the algorithm works.\\
+
+The join algorithm works by reading in one tuple at a time from each relation. We then compare the two tuples. If they are equal on the join attribute then we merge them and out put the result keeping the employee tuple and reading in a department tuple. If the employee tuple is larger than the department tuple then a new department tuple is read in. If the department tuple is larger than the employee tuple then we load a new employee tuple. We do this until we run out of either department tuples or employee tuples.\\
+
+In order to make sure that we can pick up where we left off we log the state of the join through out each step of the join. Directly following every read we write to the log file the offset of the begging of the tuple we just read in. After every write we record the offset of the end of the tuple that was just written. We make these log writes after the are completed to ensure that if the write or read is interrupted that we don't have partial reads or writes that have been recorded in the log. Logging after an operation ensures that ever operation we have in the log has been completed. It does run the risk of repeating some operations that have already been completed but only the most recent. However, This cost is going to be far less than going back and checking the last operation we have in the log is in some sort of dirty state.\\
+
+In order to recover after we have crashed is a very simple process. First we read in the last entry to the log. This entry will contain all the offsets for the employee file, the department file and the output file. Once we have these offsets we can open the files and fseek to the offsets recorded in the log. With the files now set up to point exactly where they were when the system crashed we can restart the join algorithm using the existing join code we already wrote. As we continue the join we also append to the log making sure not to delete any of the log file until the join has been fully completed. The final step to ensuring that the recovery happens correctly is delete the log File once the join has been completed. We do this so that our program can tell when the join has been completed with out error. On start up the first thing we will do is check to see if there is a log file. If there is a log file that is non empty then our program was interupted. If there is no log file then we know that the program exited normally so we need not recover.\\
+
+
+\part{b}
+Implement your proposed algorithm in C++.\\
+\textbf{Requirements:}
+\begin{itemize}
+\item Each input relation is stored in a separate CSV file, i.e., each tuple is in a separate line and fields of each record are separated by commas.
+\item The result of the join must be stored in a new CSV file.
+The files that store relations Dept and Emp are Dept.csv and Emp.csv, respectively. 
+\item Your program must assume that the input files are in the current working directory, i.e., the one from which your program is running.
+\item The program must store the result in a new CSV file with the name join.csv in the current working directory.
+\item Your program must run on Linux. Each student has an account on 
+\textit{voltdb1.eecs.oregonstate.edu} server, which is a Linux machine. You may use this machine to test your program if you do not have access to any other Linux machine. You can use the following \textit{bash} command to connect to \textit{voltdb1}:
+\begin{verbatim}
+> ssh your_onid_username@voltdb1.eecs.oregonstate.edu
+\end{verbatim}
+Then it asks for your ONID password and probably one another question. You can only access this server on campus.
+
+\item You can use following commands to compile and run C++ code:
+
+\begin{verbatim}
+> g++ main.cpp -o main.out
+> main.out
+\end{verbatim}
+
+%\item  Your source code must be in a single file.
+\end{itemize}
+
+
+
+\end{document}
