@@ -113,7 +113,9 @@ const char EMP_FNAME[] = "Emp.csv";
 const char DEPT_FNAME[] = "Dept.csv";
 const char OUTPUT_FNAME[] = "join.csv";
 const char LOG_FNAME[] = "joinLog";
-const bool TEST_CRASH = true;
+
+//CONSTANTS FOR CRASHING PROGRAM
+const bool TEST_CRASH = false;
 const int STABILITY = 33;
 
 // Main function
