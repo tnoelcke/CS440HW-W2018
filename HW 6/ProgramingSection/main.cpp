@@ -109,8 +109,8 @@ void cleanUp();
 
 //Constants
 const int NUM_BLOCKS = 22;
-const char EMP_FNAME[] = "employee.csv";
-const char DEPT_FNAME[] = "department.csv";
+const char EMP_FNAME[] = "Emp.csv";
+const char DEPT_FNAME[] = "Dept.csv";
 const char OUTPUT_FNAME[] = "join.csv";
 const char LOG_FNAME[] = "joinLog";
 const bool TEST_CRASH = true;
