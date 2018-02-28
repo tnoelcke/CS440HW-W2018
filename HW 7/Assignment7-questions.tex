@@ -1,0 +1,178 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb,amsfonts}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{color}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{titlesec}
+\usepackage{latexsym}
+\usepackage{enumerate}
+\usepackage[urlcolor=blue, linkcolor=blue, colorlinks=true]{hyperref}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{comment}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\renewcommand{\theenumi}{\alph{enumi}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+ 
+\begin{document}
+\title{CS440 - Assignment 7}
+\author{Hadoop}
+\maketitle
+\noindent 
+The assignment is to be turned in before Midnight (by 11:59pm) on March 6th, 2018. You should turn in the solutions to this assignment as a ZIP file through the TEACH website. % The solutions should be produced using editing software programs, such as LaTeX or Word, otherwise they will not be graded. 
+
+
+\section{Hadoop (8 points)}
+
+\subsection*{Objective}
+In this assignment you are going to implement a Hadoop program that computes the page visit counts of Wikipedia pages.
+
+\subsection*{Setting Up Hadoop Environment}
+In this section, we are going to setup the Hadoop environment. First you need to login\footnote{To access the Hadoop server you need to be on campus or use the school's \href{http://oregonstate.edu/helpdocs/network-and-phone/virtual-private-network-vpn}{vpn}.} to the Hadoop server using your engineering account:
+\begin{verbatim}
+ssh hadoop-master.engr.oregonstate.edu
+\end{verbatim}
+
+\noindent Next you need to set the JAVA\_HOME and HADOOP\_HOME variables. These variables help Linux shell to locate the java and hadoop binaries when you are using hadoop commands. To set these variables, you can follow either of following methods\footnote{Method 2 is provided as an alternative if you could not have success to set variables manually following the first method.}:
+
+\noindent\textbf{Method 1}\\
+Once you are logged in to the Hadoop server, open the shell startup configuration file $\mathtt{\sim}$\textit{/.cshrc} with an editor and add the following lines to \underline{the end of the file}:
+\begin{verbatim}
+ setenv JAVA_HOME "/usr/lib/jvm/java-1.8.0"
+ setenv PATH "$JAVA_HOME/bin:$PATH"
+ setenv CLASSPATH ".:$JAVA_HOME/jre/lib:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar"
+ 
+ setenv HADOOP_HOME /opt/hadoop/hadoop
+ setenv HADOOP_COMMON_HOME $HADOOP_HOME
+ setenv HADOOP_HDFS_HOME $HADOOP_HOME
+ setenv HADOOP_MAPRED_HOME $HADOOP_HOME
+ setenv HADOOP_YARN_HOME $HADOOP_HOME
+ setenv HADOOP_OPTS "-Djava.library.path=$HADOOP_HOME/lib/native"
+ setenv HADOOP_COMMON_LIB_NATIVE_DIR $HADOOP_HOME/lib/native
+ setenv PATH $HADOOP_HOME/sbin:$HADOOP_HOME/bin:$PATH
+ setenv HADOOP_CLASSPATH "${JAVA_HOME}/lib/tools.jar"
+\end{verbatim}
+After this, you need to reload the startup file: \\
+\verb|source |$\mathtt{\sim}$\verb|/.cshrc|
+
+\noindent\textbf{Method 2}\\
+Once you are logged in to the Hadoop server via \verb|ssh| command given in the first paragraph, run the following command which sets all the required variables from \verb|hadoop_bashrc|\footnote{These changes are limited to your current terminal session, so if you close your terminal you should rerun this command to have all the required variables set.}:
+\begin{verbatim}
+source /scratch/hadoop_bashrc
+\end{verbatim}
+
+\subsection*{Working with HDFS}
+You have a folder on HDFS server at \verb|/user/cs540/<your onid user name>|. Note that files on HDFS can be manipulated only using the special commands that are given below. Throughout the assignment, you should just use this directory when you need to work with HDFS. You can upload files or write output of your jobs to your directory. Note that this directory is not being backed up. Following is a list of commands that you can use to interact with HDFS: 
+\begin{itemize}
+ \item View list of files and folders: \verb|hdfs dfs -ls <path>|
+ \item Upload a file to HDFS: \\
+ \verb| hdfs dfs -put <file on engr account> <path to your directory on HDFS>|
+ \item Download a file from HDFS: \\
+ \verb| hdfs dfs -get <path to your directory on HDFS>/<file_name> |
+ \item View file on HDFS: \verb| hdfs dfs -cat <path to your directory on HDFS>/<file_name> |
+ \item Make a new directory: \verb| hdfs dfs -mkdir <path your directory on HDFS>/<folder_name> |
+ \item Remove a file: \verb| hdfs dfs -rm <path to your directory on HDFS>/<file_name> |
+ \item Remove a directory: \verb| hdfs dfs -rm -r <path to your directory on HDFS>/<folder_name> |
+\end{itemize}
+
+\subsection*{Problem Explanation}
+Your task is to compute the page visit counts of Wikipedia pages over a period of time. We have provided an input file $input.dat$ that contains page titles and visit counts for each page. Each row of the file has page title, page visit count, content size and validity(T/F) information. These values are separated by space. There can be multiple rows for a single page. Following is a fragment of sample input file:
+\begin{verbatim}
+ Ace_of_Swords	2	17276 T
+ Law_school		29	539143 T
+ Ace_of_Swords	3	17705 T
+\end{verbatim}
+\noindent You should write a program that computes the total page visits for each page. You should only consider valid rows i.e. whose validity is T. For example, the total page visits for \textit{Ace\_of\_Swords} will be $5$. The output file should contain page title and the total count separated by a single space. Following is the output for the sample input:
+\begin{verbatim}
+ Law_school		29 
+ Ace_of_Swords	5	
+\end{verbatim}
+
+\noindent Note that the rows of the output file do not need to be in the same order as the input file.
+
+\subsection*{Implementation}
+You are given a skeleton code \textit{PageCount.java} and you need to complete the \textit{map} and \textit{reduce} functions in this file.
+
+\subsubsection*{Mapper}
+The $map$ function is called once for each key/value pair in the input split. The $value$ argument of $map$ function is of type $Text$ and contains the text of the input file. You can call $toString()$ on it to get a String object of the value \footnote{For more information on the $Text$ class visit  \href{https://hadoop.apache.org/docs/r2.7.3/api/org/apache/hadoop/io/Text.html}{this page}.}. You should use $value$ to produce the needed key-value pairs. After that you can call $context.write(new\_key, new\_value)$ to send the key values to the reducer. 
+
+\subsubsection*{Reducer}
+The $reduce$ function is called once for each key received from the Mapper. You can iterate over the values of that key to do your computations. In the end of the method you can call $context.write(another\_key, another\_value)$ to write the results of reduce to an output file.
+
+\subsection*{Compiling and Running}
+\noindent Once you have finished editing the Skeleton, follow these commands to run your hadoop job:
+\begin{enumerate}
+\item To compile your code and create a jar file:
+\begin{verbatim}
+ hadoop com.sun.tools.javac.Main PageCount.java
+ jar cf pc.jar PageCount*.class
+\end{verbatim}
+\item Upload the input file $input.dat$ to your HDFS folder:
+\begin{verbatim}
+ hdfs dfs -put input.dat <path to your folder>/
+\end{verbatim}
+\item Run the application:
+\begin{verbatim}
+ hadoop jar pc.jar PageCount <path to your folder>/input <path to your folder>/output
+\end{verbatim}
+Note that the output directory should not exist before running the above command. Otherwise you will get an error. 
+\item You can view the output file:
+\begin{verbatim}
+ hdfs dfs -cat <path to your folder>/output/part-r-00000
+\end{verbatim}
+Depending on the number of reducers you may get more than one output files. Use the $list$ command mentioned in the previous section to go through different output files.
+\end{enumerate}
+Hints:
+\begin{itemize}
+ \item You can put your code in a directory under your engineering account's home folder. This way, after logging in to the Hadoop server, you can access your code in your engineering home folder and you can edit and compile the code there. However, the input file should be uploaded to the HDFS using the given commands.
+ \item After running your job you can view its status using a web interface. To do this, login to Hadoop server. If you are a mac user, you need to add $-X$ to $ssh$ command to enable $X11$ services. After you logged in, type $firefox$ in the terminal. This should open a firefox window. Then go to ``http://hadoop-master.engr.oregonstate.edu:8088/'' in the firefox. You should be able to see information on your hadoop jobs.
+\end{itemize}
+
+\subsection*{Implementation notes for C++ developers}
+You are provided with an skeleton code containing $mapper$ and $reducer$ cpp and header files. You need to complete this code and run it on hadoop server. Once you have completed the codes, compile it on hadoop server. Make sure you enable execution permission for your executables using $chmod$ command. Then use the following the instructions:
+\begin{enumerate}
+\item Upload the input file $input.dat$ to your HDFS folder:
+\begin{verbatim}
+ hdfs dfs -put input.dat <path to your folder>/
+\end{verbatim}
+\item Run the application:
+\begin{verbatim}
+ hadoop jar /opt/hadoop/hadoop-2.7.3/share/hadoop/tools/lib/hadoop-streaming-2.7.3.jar 
+	  -input <your folder on hdfs>/<input file name> 
+	  -output <your folder on hdfs>/<outputdirectory> 
+	  -file ./mapper -mapper ./mapper -file ./reducer -reducer ./reducer
+\end{verbatim}
+Note that the output directory should not exist before running the above command. Otherwise you will get an error. 
+\item You can view the output file:
+\begin{verbatim}
+ hdfs dfs -cat <path to your folder>/output/part-r-00000
+\end{verbatim}
+Depending on the number of reducers you may get more than one output files. Use the $list$ command mentioned in the previous section to go through different output files.
+\end{enumerate}
+
+
+\section*{Deliverables}
+You should submit a zip file containing completed PageCount.java (or C++ files), your output file and a pdf file containing answer to the Recovery question.
+\end{document}
